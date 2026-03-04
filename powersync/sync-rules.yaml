@@ -1,0 +1,52 @@
+bucket_definitions:
+
+  # User's own profile (always synced)
+  user_profile:
+    parameters: SELECT request.user_id() AS user_id
+    data:
+      - SELECT * FROM profiles WHERE id = bucket.user_id
+
+  # Household data (one bucket per household the user belongs to)
+  household_data:
+    parameters:
+      SELECT hm.household_id
+      FROM household_members hm
+      WHERE hm.user_id = request.user_id()
+    data:
+      - SELECT * FROM households WHERE id = bucket.household_id
+      - SELECT * FROM household_members WHERE household_id = bucket.household_id
+      - SELECT * FROM household_invites WHERE household_id = bucket.household_id
+      - SELECT * FROM categories WHERE household_id = bucket.household_id
+      - SELECT * FROM accounts WHERE household_id = bucket.household_id
+
+  # Budget data (per household, includes all members' budgets for aggregate view)
+  household_budgets:
+    parameters:
+      SELECT hm.household_id
+      FROM household_members hm
+      WHERE hm.user_id = request.user_id()
+    data:
+      - SELECT * FROM budgets WHERE household_id = bucket.household_id
+      - >
+        SELECT ea.* FROM envelope_allocations ea
+        JOIN budgets b ON ea.budget_id = b.id
+        WHERE b.household_id = bucket.household_id
+
+  # Transaction data (per household, for aggregate view)
+  household_transactions:
+    parameters:
+      SELECT hm.household_id
+      FROM household_members hm
+      WHERE hm.user_id = request.user_id()
+    data:
+      - SELECT * FROM transactions WHERE household_id = bucket.household_id
+
+  # Member profiles (so user can see display names of household members)
+  household_member_profiles:
+    parameters:
+      SELECT hm2.user_id AS member_id
+      FROM household_members hm
+      JOIN household_members hm2 ON hm.household_id = hm2.household_id
+      WHERE hm.user_id = request.user_id()
+    data:
+      - SELECT * FROM profiles WHERE id = bucket.member_id
