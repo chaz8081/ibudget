@@ -1,0 +1,9 @@
+export const PROFILES_TABLE = "profiles";
+export const HOUSEHOLDS_TABLE = "households";
+export const HOUSEHOLD_MEMBERS_TABLE = "household_members";
+export const HOUSEHOLD_INVITES_TABLE = "household_invites";
+export const CATEGORIES_TABLE = "categories";
+export const BUDGETS_TABLE = "budgets";
+export const ENVELOPE_ALLOCATIONS_TABLE = "envelope_allocations";
+export const ACCOUNTS_TABLE = "accounts";
+export const TRANSACTIONS_TABLE = "transactions";
