@@ -90,15 +90,15 @@ export default function TransactionDetailScreen() {
 
   if (!transaction) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
-        <Text className="text-gray-400">Loading...</Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
+        <Text className="text-gray-400 dark:text-gray-500">Loading...</Text>
       </View>
     );
   }
 
   if (isEditing) {
     return (
-      <ScrollView className="flex-1 bg-gray-50 px-4 pt-4" keyboardShouldPersistTaps="handled">
+      <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4" keyboardShouldPersistTaps="handled">
         <CurrencyInput label="Amount" value={amount} onChangeValue={setAmount} />
         <Input
           label="Description"
@@ -108,7 +108,7 @@ export default function TransactionDetailScreen() {
         <Input label="Payee" value={payee} onChangeText={setPayee} />
         <Input label="Date" value={txDate} onChangeText={setTxDate} />
 
-        <Text className="text-sm font-medium text-gray-700 mb-2">Category</Text>
+        <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</Text>
         <View className="flex-row flex-wrap gap-2 mb-4">
           {categories.map((cat) => (
             <Pressable
@@ -117,12 +117,12 @@ export default function TransactionDetailScreen() {
               className={`rounded-full px-3 py-1.5 border ${
                 selectedCategory === cat.id
                   ? "bg-primary-600 border-primary-600"
-                  : "bg-white border-gray-300"
+                  : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
               }`}
             >
               <Text
                 className={`text-sm ${
-                  selectedCategory === cat.id ? "text-white" : "text-gray-700"
+                  selectedCategory === cat.id ? "text-white" : "text-gray-700 dark:text-gray-300"
                 }`}
               >
                 {cat.icon ? `${cat.icon} ` : ""}{cat.name}
@@ -143,14 +143,14 @@ export default function TransactionDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
       <Card className="mb-4">
         <View className="items-center mb-4">
           <Text
             className={`text-3xl font-bold ${
               transaction.transaction_type === "income"
                 ? "text-success-500"
-                : "text-gray-900"
+                : "text-gray-900 dark:text-gray-100"
             }`}
           >
             {transaction.transaction_type === "income" ? "+" : "-"}
@@ -160,28 +160,28 @@ export default function TransactionDetailScreen() {
 
         <View className="gap-3">
           <View className="flex-row justify-between">
-            <Text className="text-sm text-gray-500">Description</Text>
-            <Text className="text-sm text-gray-900">{transaction.description}</Text>
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Description</Text>
+            <Text className="text-sm text-gray-900 dark:text-gray-100">{transaction.description}</Text>
           </View>
           {transaction.payee && (
             <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-500">Payee</Text>
-              <Text className="text-sm text-gray-900">{transaction.payee}</Text>
+              <Text className="text-sm text-gray-500 dark:text-gray-400">Payee</Text>
+              <Text className="text-sm text-gray-900 dark:text-gray-100">{transaction.payee}</Text>
             </View>
           )}
           <View className="flex-row justify-between">
-            <Text className="text-sm text-gray-500">Category</Text>
-            <Text className="text-sm text-gray-900">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Category</Text>
+            <Text className="text-sm text-gray-900 dark:text-gray-100">
               {transaction.category_icon ?? ""} {transaction.category_name ?? "Uncategorized"}
             </Text>
           </View>
           <View className="flex-row justify-between">
-            <Text className="text-sm text-gray-500">Date</Text>
-            <Text className="text-sm text-gray-900">{transaction.transaction_date}</Text>
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Date</Text>
+            <Text className="text-sm text-gray-900 dark:text-gray-100">{transaction.transaction_date}</Text>
           </View>
           <View className="flex-row justify-between">
-            <Text className="text-sm text-gray-500">Type</Text>
-            <Text className="text-sm text-gray-900 capitalize">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Type</Text>
+            <Text className="text-sm text-gray-900 dark:text-gray-100 capitalize">
               {transaction.transaction_type}
             </Text>
           </View>

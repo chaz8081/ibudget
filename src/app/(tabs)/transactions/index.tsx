@@ -1,12 +1,16 @@
-import { useState, useCallback } from "react";
-import { View, Text, FlatList, Pressable } from "react-native";
+import { useState, useCallback, useMemo } from "react";
+import { View, Text, FlatList, Pressable, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useBudget } from "@/features/budget/hooks/useBudget";
 import { useCategories } from "@/features/budget/hooks/useCategories";
 import { useTransactions } from "@/features/transactions/hooks/useTransactions";
+import { useRecurringTransactions } from "@/features/transactions/hooks/useRecurringTransactions";
+import type { Frequency } from "@/features/transactions/utils/recurring-engine";
 import { TransactionItem } from "@/components/transactions/TransactionItem";
 import { AddTransactionSheet } from "@/components/transactions/AddTransactionSheet";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
 export default function TransactionsScreen() {
@@ -14,17 +18,36 @@ export default function TransactionsScreen() {
   const { householdId } = useHousehold();
   const { budget } = useBudget();
   const { categories } = useCategories(householdId);
-  const { transactions, addTransaction } = useTransactions({
+  const { transactions, addTransaction, deleteTransaction } = useTransactions({
     householdId,
     budgetId: budget?.id,
   });
+  const { addRecurring } = useRecurringTransactions(householdId);
 
   const [showAdd, setShowAdd] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredTransactions = filterCategory
-    ? transactions.filter((t) => t.category_id === filterCategory)
-    : transactions;
+  const filteredTransactions = useMemo(() => {
+    let result = transactions;
+
+    if (filterCategory) {
+      result = result.filter((t) => t.category_id === filterCategory);
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (t) =>
+          t.description?.toLowerCase().includes(q) ||
+          t.payee?.toLowerCase().includes(q) ||
+          t.category_name?.toLowerCase().includes(q) ||
+          t.notes?.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [transactions, filterCategory, searchQuery]);
 
   const handleSave = useCallback(
     async (data: {
@@ -42,35 +65,79 @@ export default function TransactionsScreen() {
     [addTransaction, householdId]
   );
 
+  const handleDelete = useCallback(
+    (id: string) => {
+      Alert.alert(
+        "Delete Transaction",
+        "Are you sure you want to delete this transaction?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => deleteTransaction(id),
+          },
+        ]
+      );
+    },
+    [deleteTransaction]
+  );
+
+  const handleSaveRecurring = useCallback(
+    async (data: {
+      description: string;
+      payee?: string;
+      amount: number;
+      categoryId: string;
+      transactionType: string;
+      frequency: Frequency;
+      startDate: string;
+      endDate?: string;
+    }) => {
+      if (!householdId) return;
+      await addRecurring({ ...data, householdId });
+    },
+    [addRecurring, householdId]
+  );
+
   if (!householdId) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
-        <Text className="text-gray-500">Set up a household first</Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
+        <Text className="text-gray-500 dark:text-gray-400">Set up a household first</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      {/* Search */}
+      <View className="px-4 pt-2">
+        <Input
+          placeholder="Search transactions..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
       {/* Category filter chips */}
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
         data={[{ id: null, name: "All", icon: null }, ...categories]}
         keyExtractor={(item) => item.id ?? "all"}
-        contentContainerClassName="px-4 py-3"
+        contentContainerClassName="px-4 pb-3"
         renderItem={({ item }) => (
           <Pressable
             onPress={() => setFilterCategory(item.id)}
             className={`rounded-full px-3 py-1.5 mr-2 border ${
               filterCategory === item.id
                 ? "bg-primary-600 border-primary-600"
-                : "bg-white border-gray-300"
+                : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
             }`}
           >
             <Text
               className={`text-sm ${
-                filterCategory === item.id ? "text-white" : "text-gray-700"
+                filterCategory === item.id ? "text-white" : "text-gray-700 dark:text-gray-300"
               }`}
             >
               {item.icon ? `${item.icon} ` : ""}{item.name}
@@ -81,28 +148,35 @@ export default function TransactionsScreen() {
 
       {filteredTransactions.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-gray-400 text-base mb-4">
-            No transactions yet
+          <Text className="text-gray-400 dark:text-gray-500 text-base mb-4">
+            {searchQuery ? "No matching transactions" : "No transactions yet"}
           </Text>
-          <Button
-            title="Add Your First Transaction"
-            onPress={() => setShowAdd(true)}
-          />
-        </View>
-      ) : (
-        <FlatList
-          data={filteredTransactions}
-          keyExtractor={(item) => item.id}
-          contentContainerClassName="px-4 pb-4"
-          renderItem={({ item }) => (
-            <TransactionItem
-              transaction={item}
-              onPress={() =>
-                router.push(`/(tabs)/transactions/${item.id}`)
-              }
+          {!searchQuery && (
+            <Button
+              title="Add Your First Transaction"
+              onPress={() => setShowAdd(true)}
             />
           )}
-        />
+        </View>
+      ) : (
+        <ScrollView contentContainerClassName="px-4 pb-4">
+          <Card className="p-0 overflow-hidden">
+            {filteredTransactions.map((item, index) => (
+              <View key={item.id}>
+                {index > 0 && (
+                  <View className="border-b border-gray-100 dark:border-gray-700 ml-16" />
+                )}
+                <TransactionItem
+                  transaction={item}
+                  onPress={() =>
+                    router.push(`/(tabs)/transactions/${item.id}`)
+                  }
+                  onDelete={() => handleDelete(item.id)}
+                />
+              </View>
+            ))}
+          </Card>
+        </ScrollView>
       )}
 
       {/* FAB */}
@@ -118,6 +192,7 @@ export default function TransactionsScreen() {
         onClose={() => setShowAdd(false)}
         categories={categories}
         onSave={handleSave}
+        onSaveRecurring={handleSaveRecurring}
       />
     </View>
   );
