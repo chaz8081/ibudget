@@ -1,4 +1,4 @@
-import { column, Schema, TableV2 } from "@powersync/react-native";
+import { column, Schema, TableV2 } from "@powersync/common";
 
 const profiles = new TableV2({
   display_name: column.text,
@@ -130,6 +130,34 @@ const transactions = new TableV2(
   }
 );
 
+const recurring_transactions = new TableV2(
+  {
+    user_id: column.text,
+    household_id: column.text,
+    category_id: column.text,
+    amount: column.integer, // cents
+    description: column.text,
+    payee: column.text,
+    frequency: column.text, // weekly, biweekly, monthly, yearly
+    interval: column.integer, // e.g. every 2 weeks
+    start_date: column.text,
+    end_date: column.text,
+    next_occurrence_date: column.text,
+    is_enabled: column.integer, // 0 or 1
+    transaction_type: column.text, // expense or income
+    notes: column.text,
+    created_at: column.text,
+    updated_at: column.text,
+  },
+  {
+    indexes: {
+      user: ["user_id"],
+      household: ["household_id"],
+      next_occurrence: ["next_occurrence_date"],
+    },
+  }
+);
+
 export const AppSchema = new Schema({
   profiles,
   households,
@@ -140,6 +168,7 @@ export const AppSchema = new Schema({
   envelope_allocations,
   accounts,
   transactions,
+  recurring_transactions,
 });
 
 export type Database = (typeof AppSchema)["types"];

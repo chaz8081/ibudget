@@ -6,12 +6,14 @@ import { useBudget } from "@/features/budget/hooks/useBudget";
 import { useEnvelopes } from "@/features/budget/hooks/useEnvelopes";
 import { useAssignIncome } from "@/features/budget/hooks/useAssignIncome";
 import { useCategories } from "@/features/budget/hooks/useCategories";
+import { useProcessRecurring } from "@/features/transactions/hooks/useProcessRecurring";
 import { getPreviousMonth, getNextMonth } from "@/utils/date";
 import { SetupHousehold } from "@/components/household/SetupHousehold";
 import { MonthPicker } from "@/components/budget/MonthPicker";
 import { BudgetSummary } from "@/components/budget/BudgetSummary";
 import { EnvelopeList } from "@/components/budget/EnvelopeList";
 import { AssignIncomeModal } from "@/components/budget/AssignIncomeModal";
+import { UpcomingRecurring } from "@/components/transactions/UpcomingRecurring";
 import { Button } from "@/components/ui/Button";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { Modal } from "@/components/ui/Modal";
@@ -21,6 +23,7 @@ export default function DashboardScreen() {
   useProfile(); // Ensure profile exists
   const { household, householdId, isLoading: householdLoading } = useHousehold();
   const { seedDefaultCategories } = useCategories(householdId);
+  const { processRecurring } = useProcessRecurring();
 
   const [monthState, setMonthState] = useState<{
     month: number;
@@ -61,6 +64,13 @@ export default function DashboardScreen() {
     }
   }, [householdId, seedDefaultCategories]);
 
+  // Process recurring transactions on mount
+  useEffect(() => {
+    if (budget) {
+      processRecurring();
+    }
+  }, [budget, processRecurring]);
+
   const handlePrevMonth = useCallback(() => {
     setMonthState((prev) => getPreviousMonth(prev.month, prev.year));
   }, []);
@@ -100,7 +110,7 @@ export default function DashboardScreen() {
   if (!household) return <SetupHousehold />;
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       <MonthPicker
         month={month}
         year={year}
@@ -131,6 +141,8 @@ export default function DashboardScreen() {
           />
         </View>
       </View>
+
+      <UpcomingRecurring />
 
       <EnvelopeList envelopes={envelopes} />
 

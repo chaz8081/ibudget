@@ -7,3 +7,4 @@ export const BUDGETS_TABLE = "budgets";
 export const ENVELOPE_ALLOCATIONS_TABLE = "envelope_allocations";
 export const ACCOUNTS_TABLE = "accounts";
 export const TRANSACTIONS_TABLE = "transactions";
+export const RECURRING_TRANSACTIONS_TABLE = "recurring_transactions";
