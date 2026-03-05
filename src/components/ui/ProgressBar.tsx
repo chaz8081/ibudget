@@ -17,7 +17,7 @@ export function ProgressBar({ allocated, spent }: ProgressBarProps) {
   const progress = getEnvelopeProgress(allocated, spent);
 
   return (
-    <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
+    <View className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
       <View
         className={`h-full rounded-full ${statusColors[status]}`}
         style={{ width: `${progress * 100}%` }}

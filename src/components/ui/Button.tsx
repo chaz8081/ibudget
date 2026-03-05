@@ -4,6 +4,7 @@ import {
   Text,
   type PressableProps,
 } from "react-native";
+import { useColorScheme } from "nativewind";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -20,15 +21,15 @@ const variantStyles: Record<ButtonVariant, { container: string; text: string }> 
       text: "text-white",
     },
     secondary: {
-      container: "bg-gray-200 active:bg-gray-300",
-      text: "text-gray-900",
+      container: "bg-gray-200 dark:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600",
+      text: "text-gray-900 dark:text-gray-100",
     },
     danger: {
       container: "bg-danger-500 active:bg-danger-600",
       text: "text-white",
     },
     ghost: {
-      container: "bg-transparent active:bg-gray-100",
+      container: "bg-transparent active:bg-gray-100 dark:active:bg-gray-800",
       text: "text-primary-600",
     },
   };
@@ -40,8 +41,17 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const styles = variantStyles[variant];
   const isDisabled = disabled || isLoading;
+
+  const spinnerColor =
+    variant === "secondary" || variant === "ghost"
+      ? isDark
+        ? "#93c5fd"
+        : "#1e40af"
+      : "#fff";
 
   return (
     <Pressable
@@ -52,9 +62,7 @@ export function Button({
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator
-          color={variant === "secondary" || variant === "ghost" ? "#1e40af" : "#fff"}
-        />
+        <ActivityIndicator color={spinnerColor} />
       ) : (
         <Text className={`text-base font-semibold ${styles.text}`}>
           {title}

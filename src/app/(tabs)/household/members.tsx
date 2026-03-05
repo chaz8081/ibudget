@@ -12,8 +12,8 @@ export default function MembersScreen() {
   if (isLoading) return null;
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <Text className="px-4 pt-4 pb-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <Text className="px-4 pt-4 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
         {members.length} {members.length === 1 ? "Member" : "Members"}
       </Text>
       <FlatList

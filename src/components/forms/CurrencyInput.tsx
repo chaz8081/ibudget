@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Text, TextInput, View } from "react-native";
+import { useColorScheme } from "nativewind";
 import { formatCents, parseCurrencyInput } from "@/utils/currency";
 
 type CurrencyInputProps = {
@@ -15,6 +16,9 @@ export function CurrencyInput({
   onChangeValue,
   error,
 }: CurrencyInputProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
+
   const [displayText, setDisplayText] = useState(
     value > 0 ? (value / 100).toFixed(2) : ""
   );
@@ -44,18 +48,18 @@ export function CurrencyInput({
   return (
     <View className="mb-4">
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-1">{label}</Text>
+        <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</Text>
       )}
-      <View className="flex-row items-center border rounded-xl px-4 py-3 bg-white border-gray-300">
-        <Text className="text-base text-gray-500 mr-1">$</Text>
+      <View className="flex-row items-center border rounded-xl px-4 py-3 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500">
+        <Text className="text-base text-gray-500 dark:text-gray-400 mr-1">$</Text>
         <TextInput
-          className="flex-1 text-base text-gray-900"
+          className="flex-1 text-base text-gray-900 dark:text-gray-100"
           value={displayText}
           onChangeText={handleChangeText}
           onBlur={handleBlur}
           keyboardType="decimal-pad"
           placeholder="0.00"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
         />
       </View>
       {error && <Text className="text-sm text-danger-500 mt-1">{error}</Text>}

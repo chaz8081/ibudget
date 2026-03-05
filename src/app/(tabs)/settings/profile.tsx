@@ -37,7 +37,7 @@ export default function ProfileScreen() {
   }, [db, user, displayName, router]);
 
   return (
-    <View className="flex-1 bg-gray-50 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
       <Input
         label="Display Name"
         value={displayName}

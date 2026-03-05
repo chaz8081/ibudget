@@ -1,11 +1,17 @@
 import "../../global.css";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
-// Swap to AuthProvider (from ./AuthProvider) when Supabase is configured
-import { LocalAuthProvider as AuthProvider } from "@/features/auth/providers/LocalAuthProvider";
+import {
+  ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+} from "@react-navigation/native";
+// Using Supabase Auth (swap to LocalAuthProvider for offline-only dev)
+import { AuthProvider } from "@/features/auth/providers/AuthProvider";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { DatabaseProvider } from "@/db/provider";
 import { View, ActivityIndicator } from "react-native";
+import { useColorScheme } from "nativewind";
 
 function AuthGate() {
   const { session, isLoading } = useAuth();
@@ -26,7 +32,7 @@ function AuthGate() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
         <ActivityIndicator size="large" color="#2563eb" />
       </View>
     );
@@ -36,11 +42,15 @@ function AuthGate() {
 }
 
 export default function RootLayout() {
+  const { colorScheme } = useColorScheme();
+
   return (
-    <AuthProvider>
-      <DatabaseProvider>
-        <AuthGate />
-      </DatabaseProvider>
-    </AuthProvider>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
+        <DatabaseProvider>
+          <AuthGate />
+        </DatabaseProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -52,14 +52,14 @@ export default function EnvelopesScreen() {
 
   if (!householdId) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
-        <Text className="text-gray-500">Set up a household first</Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
+        <Text className="text-gray-500 dark:text-gray-400">Set up a household first</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       <MonthPicker
         month={month}
         year={year}
@@ -95,7 +95,7 @@ export default function EnvelopesScreen() {
             onChangeText={setNewCategoryName}
             autoFocus
           />
-          <Text className="text-sm font-medium text-gray-700 mb-2">Group</Text>
+          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Group</Text>
           <View className="flex-row flex-wrap gap-2 mb-4">
             {CATEGORY_GROUPS.map((g) => (
               <View
@@ -103,13 +103,13 @@ export default function EnvelopesScreen() {
                 className={`rounded-full px-3 py-1.5 border ${
                   selectedGroup === g.value
                     ? "bg-primary-600 border-primary-600"
-                    : "bg-white border-gray-300"
+                    : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
                 }`}
               >
                 <Text
                   onPress={() => setSelectedGroup(g.value)}
                   className={`text-sm ${
-                    selectedGroup === g.value ? "text-white" : "text-gray-700"
+                    selectedGroup === g.value ? "text-white" : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
                   {g.label}

@@ -10,7 +10,7 @@ type MemberCardProps = {
 const roleColors: Record<string, string> = {
   owner: "bg-primary-100 text-primary-700",
   admin: "bg-warning-500/10 text-warning-600",
-  member: "bg-gray-100 text-gray-600",
+  member: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300",
 };
 
 export function MemberCard({ displayName, role, isCurrentUser }: MemberCardProps) {
@@ -24,7 +24,7 @@ export function MemberCard({ displayName, role, isCurrentUser }: MemberCardProps
             </Text>
           </View>
           <View>
-            <Text className="text-base font-medium text-gray-900">
+            <Text className="text-base font-medium text-gray-900 dark:text-gray-100">
               {displayName}
               {isCurrentUser ? " (you)" : ""}
             </Text>

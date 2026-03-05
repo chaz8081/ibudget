@@ -49,15 +49,15 @@ export function AssignIncomeModal({
 
   return (
     <Modal visible={visible} onClose={handleSave} title="Assign Income">
-      <View className="px-6 py-3 border-b border-gray-100">
+      <View className="px-6 py-3 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row justify-between">
-          <Text className="text-sm text-gray-500">Income</Text>
-          <Text className="text-sm font-semibold text-gray-900">
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Income</Text>
+          <Text className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {formatCents(totalIncome)}
           </Text>
         </View>
         <View className="flex-row justify-between mt-1">
-          <Text className="text-sm text-gray-500">Unassigned</Text>
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Unassigned</Text>
           <Text
             className={`text-sm font-semibold ${
               unassigned < 0
@@ -79,7 +79,7 @@ export function AssignIncomeModal({
               {envelope.icon && (
                 <Text className="text-sm mr-1">{envelope.icon}</Text>
               )}
-              <Text className="text-sm font-medium text-gray-700">
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {envelope.name}
               </Text>
             </View>

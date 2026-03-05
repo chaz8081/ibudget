@@ -19,28 +19,28 @@ export function BudgetSummary({
     <Card className="mx-4 mb-4">
       <View className="flex-row justify-between mb-3">
         <View className="flex-1">
-          <Text className="text-sm text-gray-500">Income</Text>
-          <Text className="text-xl font-bold text-gray-900">
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Income</Text>
+          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {formatCents(totalIncome)}
           </Text>
         </View>
         <View className="flex-1 items-end">
-          <Text className="text-sm text-gray-500">Spent</Text>
-          <Text className="text-xl font-bold text-gray-900">
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Spent</Text>
+          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {formatCents(totalSpent)}
           </Text>
         </View>
       </View>
 
-      <View className="flex-row justify-between pt-3 border-t border-gray-100">
+      <View className="flex-row justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
         <View className="flex-1">
-          <Text className="text-sm text-gray-500">Budgeted</Text>
-          <Text className="text-base font-semibold text-gray-700">
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Budgeted</Text>
+          <Text className="text-base font-semibold text-gray-700 dark:text-gray-300">
             {formatCents(totalAllocated)}
           </Text>
         </View>
         <View className="flex-1 items-end">
-          <Text className="text-sm text-gray-500">Unassigned</Text>
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Unassigned</Text>
           <Text
             className={`text-base font-semibold ${
               unassigned < 0

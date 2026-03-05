@@ -1,4 +1,5 @@
 import { Text, TextInput, View, type TextInputProps } from "react-native";
+import { useColorScheme } from "nativewind";
 
 type InputProps = TextInputProps & {
   label?: string;
@@ -6,16 +7,19 @@ type InputProps = TextInputProps & {
 };
 
 export function Input({ label, error, ...props }: InputProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
+
   return (
     <View className="mb-4">
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-1">{label}</Text>
+        <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</Text>
       )}
       <TextInput
-        className={`border rounded-xl px-4 py-3 text-base text-gray-900 bg-white ${
-          error ? "border-danger-500" : "border-gray-300"
+        className={`border rounded-xl px-4 py-3 text-base text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 ${
+          error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"
         }`}
-        placeholderTextColor="#9ca3af"
+        placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
         {...props}
       />
       {error && (

@@ -42,17 +42,17 @@ export default function SignInScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white"
+      className="flex-1 bg-white dark:bg-gray-900"
     >
       <ScrollView
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-10">
-          <Text className="text-4xl font-bold text-gray-900 text-center">
+          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center">
             iBudget
           </Text>
-          <Text className="text-base text-gray-500 text-center mt-2">
+          <Text className="text-base text-gray-500 dark:text-gray-400 text-center mt-2">
             Sign in to your account
           </Text>
         </View>
@@ -83,7 +83,7 @@ export default function SignInScreen() {
         />
 
         <View className="flex-row justify-center mt-6 gap-1">
-          <Text className="text-gray-500">Don't have an account?</Text>
+          <Text className="text-gray-500 dark:text-gray-400">Don't have an account?</Text>
           <Link href="/sign-up" className="text-primary-600 font-semibold">
             Sign Up
           </Link>

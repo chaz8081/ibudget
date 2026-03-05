@@ -18,7 +18,7 @@ export function EnvelopeList({ envelopes, onEnvelopePress }: EnvelopeListProps) 
   if (envelopes.length === 0) {
     return (
       <View className="flex-1 items-center justify-center py-12">
-        <Text className="text-gray-400 text-base">No envelopes yet</Text>
+        <Text className="text-gray-400 dark:text-gray-500 text-base">No envelopes yet</Text>
       </View>
     );
   }
@@ -30,7 +30,7 @@ export function EnvelopeList({ envelopes, onEnvelopePress }: EnvelopeListProps) 
       contentContainerClassName="px-4 pb-4"
       renderItem={({ item }) => (
         <View className="mb-4">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
             {item.group}
           </Text>
           {item.data.map((envelope) => (

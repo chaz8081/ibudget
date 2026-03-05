@@ -39,9 +39,9 @@ export function SetupHousehold() {
 
   if (mode === "create") {
     return (
-      <View className="flex-1 bg-gray-50 justify-center px-6">
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
         <Card>
-          <Text className="text-xl font-bold text-gray-900 mb-4">
+          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Create a Household
           </Text>
           <Input
@@ -64,9 +64,9 @@ export function SetupHousehold() {
 
   if (mode === "join") {
     return (
-      <View className="flex-1 bg-gray-50 justify-center px-6">
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
         <Card>
-          <Text className="text-xl font-bold text-gray-900 mb-4">
+          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Join a Household
           </Text>
           <Input
@@ -89,11 +89,11 @@ export function SetupHousehold() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 justify-center px-6">
-      <Text className="text-3xl font-bold text-gray-900 text-center mb-2">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
+      <Text className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
         Welcome to iBudget
       </Text>
-      <Text className="text-base text-gray-500 text-center mb-8">
+      <Text className="text-base text-gray-500 dark:text-gray-400 text-center mb-8">
         Create or join a household to start budgeting
       </Text>
       <Button title="Create a Household" onPress={() => setMode("create")} />

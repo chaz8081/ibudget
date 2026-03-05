@@ -48,17 +48,17 @@ export default function ForgotPasswordScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white"
+      className="flex-1 bg-white dark:bg-gray-900"
     >
       <ScrollView
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-10">
-          <Text className="text-4xl font-bold text-gray-900 text-center">
+          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center">
             iBudget
           </Text>
-          <Text className="text-base text-gray-500 text-center mt-2">
+          <Text className="text-base text-gray-500 dark:text-gray-400 text-center mt-2">
             Reset your password
           </Text>
         </View>

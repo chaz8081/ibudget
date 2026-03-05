@@ -62,20 +62,20 @@ export default function EnvelopeDetailScreen() {
 
   if (!category) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
-        <Text className="text-gray-400">Loading...</Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
+        <Text className="text-gray-400 dark:text-gray-500">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       <Card className="mx-4 mt-4 mb-4">
         <View className="flex-row items-center mb-2">
           {category.icon && (
             <Text className="text-2xl mr-2">{category.icon}</Text>
           )}
-          <Text className="text-xl font-bold text-gray-900">
+          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {category.name}
           </Text>
         </View>
@@ -84,19 +84,19 @@ export default function EnvelopeDetailScreen() {
 
         <View className="flex-row justify-between mt-3">
           <View>
-            <Text className="text-sm text-gray-500">Spent</Text>
-            <Text className="text-base font-semibold text-gray-900">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Spent</Text>
+            <Text className="text-base font-semibold text-gray-900 dark:text-gray-100">
               {formatCents(category.spent)}
             </Text>
           </View>
           <View className="items-end">
-            <Text className="text-sm text-gray-500">Budgeted</Text>
-            <Text className="text-base font-semibold text-gray-900">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Budgeted</Text>
+            <Text className="text-base font-semibold text-gray-900 dark:text-gray-100">
               {formatCents(category.allocated)}
             </Text>
           </View>
           <View className="items-end">
-            <Text className="text-sm text-gray-500">Remaining</Text>
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Remaining</Text>
             <Text
               className={`text-base font-semibold ${
                 category.allocated - category.spent < 0
@@ -110,13 +110,13 @@ export default function EnvelopeDetailScreen() {
         </View>
       </Card>
 
-      <Text className="px-4 text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+      <Text className="px-4 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
         Transactions
       </Text>
 
       {(transactions ?? []).length === 0 ? (
         <View className="items-center py-8">
-          <Text className="text-gray-400">No transactions yet</Text>
+          <Text className="text-gray-400 dark:text-gray-500">No transactions yet</Text>
         </View>
       ) : (
         <FlatList
@@ -127,10 +127,10 @@ export default function EnvelopeDetailScreen() {
             <Card className="mb-2">
               <View className="flex-row justify-between items-center">
                 <View className="flex-1">
-                  <Text className="text-base font-medium text-gray-900">
+                  <Text className="text-base font-medium text-gray-900 dark:text-gray-100">
                     {item.payee || item.description || "Transaction"}
                   </Text>
-                  <Text className="text-sm text-gray-500">
+                  <Text className="text-sm text-gray-500 dark:text-gray-400">
                     {formatTransactionDate(item.transaction_date)}
                   </Text>
                 </View>
@@ -138,7 +138,7 @@ export default function EnvelopeDetailScreen() {
                   className={`text-base font-semibold ${
                     item.transaction_type === "income"
                       ? "text-success-500"
-                      : "text-gray-900"
+                      : "text-gray-900 dark:text-gray-100"
                   }`}
                 >
                   {item.transaction_type === "income" ? "+" : "-"}
