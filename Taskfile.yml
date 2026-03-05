@@ -1,0 +1,173 @@
+version: "3"
+
+vars:
+  PLATFORM: ios
+  ANDROID_HOME: "{{.HOME}}/Library/Android/sdk"
+  ADB: "{{.HOME}}/Library/Android/sdk/platform-tools/adb"
+  EMULATOR: "{{.HOME}}/Library/Android/sdk/emulator/emulator"
+
+env:
+  ANDROID_HOME: "{{.ANDROID_HOME}}"
+
+tasks:
+  # ---------- Supabase ----------
+  db:start:
+    desc: Start local Supabase (Postgres, Auth, Studio, etc.)
+    cmds:
+      - supabase start
+    preconditions:
+      - sh: docker info > /dev/null 2>&1
+        msg: "Docker must be running. Open Docker Desktop first."
+
+  db:stop:
+    desc: Stop local Supabase containers
+    cmds:
+      - supabase stop
+
+  db:reset:
+    desc: Reset local DB — drops all data, re-runs migrations + seed
+    cmds:
+      - supabase db reset || true
+      - echo "Waiting for services to stabilize..."
+      - sleep 3
+      - supabase status
+
+  db:seed:
+    desc: Run seed.sql against the local database (without a full reset)
+    cmds:
+      - docker exec -i supabase_db_ibudget psql -U postgres < supabase/seed.sql
+
+  db:migrate:
+    desc: Apply any new migrations to the local database
+    cmds:
+      - supabase migration up
+
+  db:new-migration:
+    desc: Create a new migration file
+    cmds:
+      - supabase migration new {{.CLI_ARGS}}
+    requires:
+      vars: [CLI_ARGS]
+
+  db:studio:
+    desc: Open Supabase Studio in your browser
+    cmds:
+      - open http://127.0.0.1:54323
+
+  db:status:
+    desc: Show local Supabase status (URLs, keys, etc.)
+    cmds:
+      - supabase status
+
+  # ---------- App ----------
+  db:ensure:
+    internal: true
+    cmds:
+      - |
+        if supabase status > /dev/null 2>&1; then
+          echo "Supabase already running"
+        else
+          echo "Starting Supabase..."
+          supabase start
+        fi
+    silent: true
+    preconditions:
+      - sh: docker info > /dev/null 2>&1
+        msg: "Docker must be running. Open Docker Desktop first."
+
+  simulator:start:
+    internal: true
+    cmds:
+      - |
+        if xcrun simctl list devices booted 2>/dev/null | grep -q "Booted"; then
+          echo "iOS simulator already running"
+        else
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        for runtime, devices in data['devices'].items():
+            if 'iOS' in runtime:
+                for d in devices:
+                    if d['isAvailable']:
+                        print(d['udid']); sys.exit(0)
+        ")
+          echo "Booting iOS simulator..."
+          xcrun simctl boot "$DEVICE" 2>/dev/null || true
+          open -a Simulator
+          echo "Simulator ready"
+        fi
+    silent: true
+
+  emulator:start:
+    internal: true
+    cmds:
+      - |
+        if {{.ADB}} devices 2>/dev/null | grep -q "emulator\|device$" | grep -v "List"; then
+          echo "Android device/emulator already connected"
+        else
+          AVD=$({{.EMULATOR}} -list-avds | head -1)
+          echo "Starting emulator: $AVD"
+          {{.EMULATOR}} -avd "$AVD" -no-snapshot-load &
+          {{.ADB}} wait-for-device
+          echo "Waiting for emulator to finish booting..."
+          while [ "$({{.ADB}} shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+            sleep 2
+          done
+          echo "Emulator ready"
+        fi
+    silent: true
+
+  dev:
+    internal: true
+    cmds:
+      - npx expo run:{{.PLATFORM}}
+
+  dev:ios:
+    desc: Run the app on iOS simulator (auto-starts simulator + Supabase)
+    deps: [db:ensure, simulator:start]
+    cmds:
+      - npx expo run:ios
+
+  dev:android:
+    desc: Run the app on Android emulator/device (auto-starts emulator + Supabase)
+    deps: [db:ensure, emulator:start]
+    cmds:
+      - npx expo run:android
+
+  dev:web:
+    desc: Run the app in the browser (auto-starts Supabase)
+    deps: [db:ensure]
+    cmds:
+      - npx expo start --web
+
+  prebuild:
+    desc: Generate native projects (run after adding native deps)
+    cmds:
+      - npx expo prebuild --platform {{.PLATFORM}}
+
+  prebuild:clean:
+    desc: Clean and regenerate native projects from scratch
+    cmds:
+      - npx expo prebuild --clean --platform {{.PLATFORM}}
+
+  # ---------- Quality ----------
+  typecheck:
+    desc: Run TypeScript type checking
+    cmds:
+      - npx tsc --noEmit
+
+  # ---------- Setup ----------
+  setup:
+    desc: Full local dev setup — install deps, start Supabase, apply migrations + seed
+    cmds:
+      - npm install
+      - task: db:start
+      - task: db:reset
+    preconditions:
+      - sh: docker info > /dev/null 2>&1
+        msg: "Docker must be running. Open Docker Desktop first."
+
+  teardown:
+    desc: Stop Supabase and remove local data volumes
+    cmds:
+      - supabase stop --no-backup
