@@ -42,30 +42,30 @@ export function HouseholdSummary({
     <View>
       {/* Overall summary */}
       <Card className="mx-4 mb-4">
-        <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+        <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
           Household Total ({memberCount} {memberCount === 1 ? "member" : "members"})
         </Text>
         <View className="flex-row justify-between mb-2">
           <View>
-            <Text className="text-sm text-gray-500">Combined Income</Text>
-            <Text className="text-xl font-bold text-gray-900">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Combined Income</Text>
+            <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {formatCents(totalIncome)}
             </Text>
           </View>
           <View className="items-end">
-            <Text className="text-sm text-gray-500">Total Spent</Text>
-            <Text className="text-xl font-bold text-gray-900">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Total Spent</Text>
+            <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {formatCents(totalSpent)}
             </Text>
           </View>
         </View>
-        <View className="flex-row justify-between pt-2 border-t border-gray-100">
+        <View className="flex-row justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
           <View>
-            <Text className="text-sm text-gray-500">Budgeted</Text>
-            <Text className="text-base font-semibold">{formatCents(totalAllocated)}</Text>
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Budgeted</Text>
+            <Text className="text-base font-semibold text-gray-700 dark:text-gray-300">{formatCents(totalAllocated)}</Text>
           </View>
           <View className="items-end">
-            <Text className="text-sm text-gray-500">Remaining</Text>
+            <Text className="text-sm text-gray-500 dark:text-gray-400">Remaining</Text>
             <Text
               className={`text-base font-semibold ${
                 totalRemaining < 0 ? "text-danger-500" : "text-success-500"
@@ -80,17 +80,17 @@ export function HouseholdSummary({
       {/* Per-member breakdown */}
       {memberBudgets.length > 1 && (
         <View className="mx-4 mb-4">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
             By Member
           </Text>
           {memberBudgets.map((member) => (
             <Card key={member.user_id} className="mb-2">
               <View className="flex-row justify-between items-center">
-                <Text className="text-base font-medium text-gray-900">
+                <Text className="text-base font-medium text-gray-900 dark:text-gray-100">
                   {member.display_name}
                 </Text>
                 <View className="items-end">
-                  <Text className="text-sm text-gray-900">
+                  <Text className="text-sm text-gray-900 dark:text-gray-100">
                     {formatCents(member.total_spent)} / {formatCents(member.total_income)}
                   </Text>
                 </View>
@@ -109,16 +109,16 @@ export function HouseholdSummary({
       {/* Per-category breakdown */}
       {categoryBreakdown.length > 0 && (
         <View className="mx-4 mb-4">
-          <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
             By Category
           </Text>
           {categoryBreakdown.map((cat) => (
             <Card key={cat.category_id} className="mb-2">
               <View className="flex-row justify-between items-center mb-1">
-                <Text className="text-base font-medium text-gray-900">
+                <Text className="text-base font-medium text-gray-900 dark:text-gray-100">
                   {cat.category_icon ? `${cat.category_icon} ` : ""}{cat.category_name}
                 </Text>
-                <Text className="text-sm text-gray-700">
+                <Text className="text-sm text-gray-700 dark:text-gray-300">
                   {formatCents(cat.total_spent)} / {formatCents(cat.total_allocated)}
                 </Text>
               </View>

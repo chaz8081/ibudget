@@ -1,76 +1,66 @@
 import { useState } from "react";
-import { View, Text, ScrollView, Share } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useColorScheme } from "nativewind";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useHouseholdBudget } from "@/features/household/hooks/useHouseholdBudget";
 import { SetupHousehold } from "@/components/household/SetupHousehold";
-import { HouseholdSummary } from "@/components/household/HouseholdSummary";
+import { CategoryBreakdown } from "@/components/household/CategoryBreakdown";
+import { HouseholdActivity } from "@/components/household/HouseholdActivity";
 import { MonthPicker } from "@/components/budget/MonthPicker";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { formatCents } from "@/utils/currency";
 import { getPreviousMonth, getNextMonth } from "@/utils/date";
+import { useNavigation } from "expo-router";
+import { useLayoutEffect } from "react";
 
 export default function HouseholdScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const { household, householdId, userRole, isLoading } = useHousehold();
+  const [activeTab, setActiveTab] = useState<"budget" | "activity">("budget");
 
   const [monthState, setMonthState] = useState(() => {
     const now = new Date();
     return { month: now.getMonth() + 1, year: now.getFullYear() };
   });
 
-  const { summary, memberBudgets, categoryBreakdown } = useHouseholdBudget(
+  const { summary, categoryBreakdown } = useHouseholdBudget(
     householdId,
     monthState.month,
     monthState.year
   );
 
+  // Add gear icon to header for manage screen
+  useLayoutEffect(() => {
+    if (household) {
+      navigation.setOptions({
+        headerRight: () => (
+          <Pressable
+            onPress={() => router.push("/(tabs)/household/manage")}
+            className="p-2 mr-2"
+          >
+            <Ionicons
+              name="settings-outline"
+              size={22}
+              color={isDark ? "#d1d5db" : "#374151"}
+            />
+          </Pressable>
+        ),
+      });
+    }
+  }, [navigation, household, isDark, router]);
+
   if (isLoading) return null;
   if (!household) return <SetupHousehold />;
 
-  const handleShareCode = async () => {
-    if (!household.invite_code) return;
-    try {
-      await Share.share({
-        message: `Join my household on iBudget! Use invite code: ${household.invite_code}`,
-      });
-    } catch {
-      // User cancelled
-    }
-  };
+  const remaining = summary.total_income - summary.total_spent;
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      <Card className="mx-4 mt-4 mb-2">
-        <View className="flex-row items-center justify-between">
-          <View>
-            <Text className="text-xl font-bold text-gray-900">
-              {household.name}
-            </Text>
-            <Text className="text-sm text-gray-500 capitalize">
-              {userRole ?? "member"}
-            </Text>
-          </View>
-          <Button
-            title="Members"
-            variant="ghost"
-            onPress={() => router.push("/(tabs)/household/members")}
-          />
-        </View>
-      </Card>
-
-      <Card className="mx-4 mb-4">
-        <View className="flex-row items-center justify-between">
-          <View>
-            <Text className="text-xs text-gray-500">Invite Code</Text>
-            <Text className="text-lg font-mono font-bold text-primary-600">
-              {household.invite_code ?? "—"}
-            </Text>
-          </View>
-          <Button title="Share" variant="secondary" onPress={handleShareCode} />
-        </View>
-      </Card>
-
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950">
       <MonthPicker
         month={monthState.month}
         year={monthState.year}
@@ -80,14 +70,88 @@ export default function HouseholdScreen() {
         onNext={() => setMonthState((p) => getNextMonth(p.month, p.year))}
       />
 
-      <HouseholdSummary
-        totalIncome={summary.total_income}
-        totalAllocated={summary.total_allocated}
-        totalSpent={summary.total_spent}
-        memberCount={summary.member_count}
-        memberBudgets={memberBudgets}
-        categoryBreakdown={categoryBreakdown}
-      />
+      {/* Compact 2x2 summary */}
+      <Card className="mx-4 mb-4">
+        <View className="flex-row mb-3">
+          <View className="flex-1">
+            <Text className="text-xs text-gray-500 dark:text-gray-400 uppercase">Income</Text>
+            <Text className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              {formatCents(summary.total_income)}
+            </Text>
+          </View>
+          <View className="flex-1 items-end">
+            <Text className="text-xs text-gray-500 dark:text-gray-400 uppercase">Spent</Text>
+            <Text className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              {formatCents(summary.total_spent)}
+            </Text>
+          </View>
+        </View>
+        <View className="flex-row pt-3 border-t border-gray-100 dark:border-gray-700">
+          <View className="flex-1">
+            <Text className="text-xs text-gray-500 dark:text-gray-400 uppercase">Budgeted</Text>
+            <Text className="text-base font-semibold text-gray-700 dark:text-gray-300">
+              {formatCents(summary.total_allocated)}
+            </Text>
+          </View>
+          <View className="flex-1 items-end">
+            <Text className="text-xs text-gray-500 dark:text-gray-400 uppercase">Remaining</Text>
+            <Text
+              className={`text-base font-semibold ${
+                remaining < 0 ? "text-danger-500" : "text-success-500"
+              }`}
+            >
+              {formatCents(remaining)}
+            </Text>
+          </View>
+        </View>
+      </Card>
+
+      {/* Segmented control */}
+      <View className="mx-4 mb-4 flex-row bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+        <Pressable
+          onPress={() => setActiveTab("budget")}
+          className={`flex-1 py-2 rounded-lg items-center ${
+            activeTab === "budget" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+          }`}
+        >
+          <Text
+            className={`font-semibold text-sm ${
+              activeTab === "budget"
+                ? "text-gray-900 dark:text-gray-100"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
+          >
+            Budget
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setActiveTab("activity")}
+          className={`flex-1 py-2 rounded-lg items-center ${
+            activeTab === "activity" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+          }`}
+        >
+          <Text
+            className={`font-semibold text-sm ${
+              activeTab === "activity"
+                ? "text-gray-900 dark:text-gray-100"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
+          >
+            Activity
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Content */}
+      {activeTab === "budget" ? (
+        <CategoryBreakdown categories={categoryBreakdown} />
+      ) : (
+        <HouseholdActivity
+          householdId={householdId}
+          month={monthState.month}
+          year={monthState.year}
+        />
+      )}
 
       <View className="h-8" />
     </ScrollView>
