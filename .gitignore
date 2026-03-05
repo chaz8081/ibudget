@@ -40,3 +40,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
