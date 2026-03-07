@@ -1,41 +1,63 @@
 import { useState } from "react";
 import { View, Text, Alert } from "react-native";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { FormField } from "@/components/forms/FormField";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { getErrorMessage } from "@/utils/errors";
+
+const createSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+});
+
+const joinSchema = z.object({
+  inviteCode: z.string().min(1, "Invite code is required"),
+});
+
+type CreateFormData = z.infer<typeof createSchema>;
+type JoinFormData = z.infer<typeof joinSchema>;
 
 export function SetupHousehold() {
   const { createHousehold, joinHousehold } = useHousehold();
   const [mode, setMode] = useState<"choose" | "create" | "join">("choose");
-  const [name, setName] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreate = async () => {
-    if (!name.trim()) return;
-    setIsLoading(true);
-    try {
-      await createHousehold(name.trim());
-    } catch (error) {
-      Alert.alert("Error", getErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const createForm = useForm<CreateFormData>({
+    resolver: zodResolver(createSchema),
+    mode: "onBlur",
+    defaultValues: { name: "" },
+  });
 
-  const handleJoin = async () => {
-    if (!inviteCode.trim()) return;
+  const joinForm = useForm<JoinFormData>({
+    resolver: zodResolver(joinSchema),
+    mode: "onBlur",
+    defaultValues: { inviteCode: "" },
+  });
+
+  const handleCreate = createForm.handleSubmit(async (data) => {
     setIsLoading(true);
     try {
-      await joinHousehold(inviteCode.trim());
+      await createHousehold(data.name.trim());
     } catch (error) {
       Alert.alert("Error", getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
-  };
+  });
+
+  const handleJoin = joinForm.handleSubmit(async (data) => {
+    setIsLoading(true);
+    try {
+      await joinHousehold(data.inviteCode.trim());
+    } catch (error) {
+      Alert.alert("Error", getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  });
 
   if (mode === "create") {
     return (
@@ -44,11 +66,11 @@ export function SetupHousehold() {
           <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Create a Household
           </Text>
-          <Input
+          <FormField
+            control={createForm.control}
+            name="name"
             label="Household Name"
             placeholder="e.g., The Smith Family"
-            value={name}
-            onChangeText={setName}
             autoFocus
           />
           <Button title="Create" onPress={handleCreate} isLoading={isLoading} />
@@ -69,11 +91,11 @@ export function SetupHousehold() {
           <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Join a Household
           </Text>
-          <Input
+          <FormField
+            control={joinForm.control}
+            name="inviteCode"
             label="Invite Code"
             placeholder="Enter invite code"
-            value={inviteCode}
-            onChangeText={setInviteCode}
             autoCapitalize="none"
             autoFocus
           />

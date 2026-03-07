@@ -1,14 +1,26 @@
 import { useState, useCallback } from "react";
 import { View, Text, ScrollView, Pressable, Alert, Switch } from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
+import { FormField } from "@/components/forms/FormField";
 import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { useToast } from "@/contexts/ToastContext";
 import type { Frequency } from "@/features/transactions/utils/recurring-engine";
+
+const transactionSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  payee: z.string().optional(),
+  txDate: z.string().min(1, "Date is required"),
+  endDate: z.string().optional(),
+});
+
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
 type Category = {
   id: string;
@@ -56,32 +68,39 @@ export function AddTransactionSheet({
   onSaveRecurring,
 }: AddTransactionSheetProps) {
   const { showToast } = useToast();
+  const { control, handleSubmit, reset, watch } = useForm<TransactionFormData>({
+    resolver: zodResolver(transactionSchema),
+    mode: "onBlur",
+    defaultValues: {
+      description: "",
+      payee: "",
+      txDate: new Date().toISOString().split("T")[0],
+      endDate: "",
+    },
+  });
   const [amount, setAmount] = useState(0);
-  const [description, setDescription] = useState("");
-  const [payee, setPayee] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [txType, setTxType] = useState<"expense" | "income">("expense");
-  const [txDate, setTxDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
   const [isLoading, setIsLoading] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<Frequency>("monthly");
-  const [endDate, setEndDate] = useState("");
+  const watchedTxDate = watch("txDate");
 
   const resetForm = useCallback(() => {
     setAmount(0);
-    setDescription("");
-    setPayee("");
     setSelectedCategory("");
     setTxType("expense");
-    setTxDate(new Date().toISOString().split("T")[0]);
     setIsRecurring(false);
     setFrequency("monthly");
-    setEndDate("");
-  }, []);
+    reset({
+      description: "",
+      payee: "",
+      txDate: new Date().toISOString().split("T")[0],
+      endDate: "",
+    });
+  }, [reset]);
 
-  const handleSave = useCallback(async () => {
+  const onSubmit = handleSubmit(async (data) => {
     if (amount === 0) {
       Alert.alert("Error", "Please enter an amount");
       return;
@@ -90,34 +109,30 @@ export function AddTransactionSheet({
       Alert.alert("Error", "Please select a category");
       return;
     }
-    if (!description.trim()) {
-      Alert.alert("Error", "Please enter a description");
-      return;
-    }
 
     setIsLoading(true);
     try {
       // Save the one-time transaction
       await onSave({
-        description: description.trim(),
-        payee: payee.trim() || undefined,
+        description: data.description.trim(),
+        payee: data.payee?.trim() || undefined,
         amount,
         categoryId: selectedCategory,
         transactionType: txType,
-        transactionDate: txDate,
+        transactionDate: data.txDate,
       });
 
       // Also create recurring if toggled on
       if (isRecurring && onSaveRecurring) {
         await onSaveRecurring({
-          description: description.trim(),
-          payee: payee.trim() || undefined,
+          description: data.description.trim(),
+          payee: data.payee?.trim() || undefined,
           amount,
           categoryId: selectedCategory,
           transactionType: txType,
           frequency,
-          startDate: txDate,
-          endDate: endDate.trim() || undefined,
+          startDate: data.txDate,
+          endDate: data.endDate?.trim() || undefined,
         });
       }
 
@@ -129,22 +144,7 @@ export function AddTransactionSheet({
     } finally {
       setIsLoading(false);
     }
-  }, [
-    amount,
-    description,
-    payee,
-    selectedCategory,
-    txType,
-    txDate,
-    isRecurring,
-    frequency,
-    endDate,
-    onSave,
-    onSaveRecurring,
-    onClose,
-    resetForm,
-    showToast,
-  ]);
+  });
 
   return (
     <Modal visible={visible} onClose={onClose} title="Add Transaction">
@@ -183,24 +183,26 @@ export function AddTransactionSheet({
 
         <CurrencyInput label="Amount" value={amount} onChangeValue={setAmount} />
 
-        <Input
+        <FormField
+          control={control}
+          name="description"
           label="Description"
           placeholder="What was this for?"
-          value={description}
-          onChangeText={setDescription}
         />
 
-        <Input
+        <FormField
+          control={control}
+          name="payee"
           label="Payee (optional)"
           placeholder="Who did you pay?"
-          value={payee}
-          onChangeText={setPayee}
         />
 
-        <DatePicker
-          label="Date"
-          value={txDate}
-          onChange={setTxDate}
+        <Controller
+          control={control}
+          name="txDate"
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <DatePicker label="Date" value={value} onChange={onChange} error={error?.message} />
+          )}
         />
 
         {/* Category picker */}
@@ -263,18 +265,25 @@ export function AddTransactionSheet({
                     </Pressable>
                   ))}
                 </View>
-                <DatePicker
-                  label="End Date (optional)"
-                  value={endDate}
-                  onChange={setEndDate}
-                  minDate={txDate}
+                <Controller
+                  control={control}
+                  name="endDate"
+                  render={({ field: { onChange, value }, fieldState: { error } }) => (
+                    <DatePicker
+                      label="End Date (optional)"
+                      value={value ?? ""}
+                      onChange={onChange}
+                      minDate={watchedTxDate}
+                      error={error?.message}
+                    />
+                  )}
                 />
               </View>
             )}
           </View>
         )}
 
-        <Button title="Save Transaction" onPress={handleSave} isLoading={isLoading} />
+        <Button title="Save Transaction" onPress={onSubmit} isLoading={isLoading} />
         <View className="h-8" />
       </ScrollView>
     </Modal>

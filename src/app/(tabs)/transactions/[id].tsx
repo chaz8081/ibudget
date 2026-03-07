@@ -2,20 +2,31 @@ import { useState, useCallback, useEffect } from "react";
 import { View, Text, ScrollView, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@powersync/react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useCategories } from "@/features/budget/hooks/useCategories";
 import { useTransactions, type TransactionRow } from "@/features/transactions/hooks/useTransactions";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
+import { FormField } from "@/components/forms/FormField";
 import { Card } from "@/components/ui/Card";
 import { formatCents } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { Pressable } from "react-native";
 import { SkeletonDetail } from "@/components/ui/Skeleton";
 import { useToast } from "@/contexts/ToastContext";
+
+const editTransactionSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  payee: z.string().optional(),
+  txDate: z.string().min(1, "Date is required"),
+});
+
+type EditTransactionFormData = z.infer<typeof editTransactionSchema>;
 
 export default function TransactionDetailScreen() {
   const { showToast } = useToast();
@@ -41,38 +52,47 @@ export default function TransactionDetailScreen() {
   const transaction = txData?.[0];
 
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState("");
-  const [payee, setPayee] = useState("");
   const [amount, setAmount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [txDate, setTxDate] = useState("");
+
+  const { control, handleSubmit, reset } = useForm<EditTransactionFormData>({
+    resolver: zodResolver(editTransactionSchema),
+    mode: "onBlur",
+    defaultValues: {
+      description: "",
+      payee: "",
+      txDate: "",
+    },
+  });
 
   useEffect(() => {
     if (transaction) {
-      setDescription(transaction.description);
-      setPayee(transaction.payee ?? "");
+      reset({
+        description: transaction.description,
+        payee: transaction.payee ?? "",
+        txDate: transaction.transaction_date,
+      });
       setAmount(transaction.amount);
       setSelectedCategory(transaction.category_id ?? "");
-      setTxDate(transaction.transaction_date);
     }
-  }, [transaction]);
+  }, [transaction, reset]);
 
-  const handleSave = useCallback(async () => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!id) return;
     try {
       await updateTransaction(id, {
-        description,
-        payee,
+        description: data.description,
+        payee: data.payee ?? "",
         amount,
         categoryId: selectedCategory,
-        transactionDate: txDate,
+        transactionDate: data.txDate,
       });
       setIsEditing(false);
       showToast("Transaction updated");
     } catch (error) {
       Alert.alert("Error", getErrorMessage(error));
     }
-  }, [id, description, payee, amount, selectedCategory, txDate, updateTransaction, showToast]);
+  });
 
   const handleDelete = useCallback(() => {
     Alert.alert(
@@ -101,13 +121,23 @@ export default function TransactionDetailScreen() {
     return (
       <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4" keyboardShouldPersistTaps="handled">
         <CurrencyInput label="Amount" value={amount} onChangeValue={setAmount} />
-        <Input
+        <FormField
+          control={control}
+          name="description"
           label="Description"
-          value={description}
-          onChangeText={setDescription}
         />
-        <Input label="Payee" value={payee} onChangeText={setPayee} />
-        <DatePicker label="Date" value={txDate} onChange={setTxDate} />
+        <FormField
+          control={control}
+          name="payee"
+          label="Payee"
+        />
+        <Controller
+          control={control}
+          name="txDate"
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <DatePicker label="Date" value={value} onChange={onChange} error={error?.message} />
+          )}
+        />
 
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</Text>
         <View className="flex-row flex-wrap gap-2 mb-4">
@@ -132,7 +162,7 @@ export default function TransactionDetailScreen() {
           ))}
         </View>
 
-        <Button title="Save" onPress={handleSave} />
+        <Button title="Save" onPress={onSubmit} />
         <View className="h-3" />
         <Button
           title="Cancel"
