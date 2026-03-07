@@ -39,16 +39,18 @@ export function Modal({ visible, onClose, title, children, actionLabel, onAction
       >
         <Pressable className={`flex-1 bg-black/50 ${fullScreen ? "" : "justify-end"}`} onPress={onClose}>
           <Pressable onPress={(e) => e.stopPropagation()} className={fullScreen ? "flex-1" : ""}>
-            <View className={fullScreen ? "flex-1 bg-white dark:bg-gray-900" : "bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85%]"}>
+            <View className={fullScreen ? "flex-1 bg-white dark:bg-gray-900" : "bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85%] flex-col"}>
               <View className={`flex-row items-center justify-between px-6 border-b border-gray-100 dark:border-gray-700 ${fullScreen ? "pt-6 pb-4" : "pt-4 pb-3"}`}>
                 <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">{title}</Text>
-                <Pressable onPress={onAction ?? onClose} className="p-2">
+                <Pressable onPress={onAction ?? onClose} className="p-3">
                   <Text className="text-primary-600 text-base font-semibold">
                     {actionLabel ?? "Done"}
                   </Text>
                 </Pressable>
               </View>
-              {children}
+              <View className="flex-1 overflow-hidden">
+                {children}
+              </View>
             </View>
           </Pressable>
         </Pressable>

@@ -103,7 +103,7 @@ export function AssignIncomeModal({
         </View>
       </View>
 
-      <ScrollView className="px-6 py-4" keyboardShouldPersistTaps="handled">
+      <ScrollView className="flex-1 px-6 py-4" keyboardShouldPersistTaps="handled">
         {envelopes.map((envelope) => (
           <View key={envelope.id} className="mb-4">
             <View className="flex-row items-center mb-1">
