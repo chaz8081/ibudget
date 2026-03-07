@@ -27,6 +27,15 @@ const ORDINAL_LABELS = ["first", "second", "third", "fourth", "last"];
 const ORDINAL_VALUES = [1, 2, 3, 4, -1];
 const DAY_NAMES_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+const cycleOrdinal = (current: number): number => {
+  const idx = ORDINAL_VALUES.indexOf(current);
+  return ORDINAL_VALUES[(idx + 1) % ORDINAL_VALUES.length];
+};
+
+const cycleOrdinalDay = (current: number): number => {
+  return (current + 1) % 7;
+};
+
 export function CustomRecurrenceModal({
   visible,
   onClose,
@@ -48,6 +57,7 @@ export function CustomRecurrenceModal({
   const [endType, setEndType] = useState<RecurrenceRule["endType"]>("never");
   const [endDate, setEndDate] = useState("");
   const [endCount, setEndCount] = useState("12");
+  const [endsExpanded, setEndsExpanded] = useState(false);
 
   useEffect(() => {
     if (initialRule) {
@@ -57,6 +67,7 @@ export function CustomRecurrenceModal({
       setEndType(initialRule.endType);
       setEndDate(initialRule.endDate ?? "");
       setEndCount(initialRule.endCount?.toString() ?? "12");
+      setEndsExpanded(initialRule.endType !== "never");
 
       if (initialRule.byMonthDay) {
         setMonthlyMode("day");
@@ -70,6 +81,7 @@ export function CustomRecurrenceModal({
       setByDayOfWeek([getDay(refDate)]);
       setByMonthDay([getDate(refDate)]);
       setOrdinalDay(getDay(refDate));
+      setEndsExpanded(false);
     }
   }, [initialRule, referenceDate]);
 
@@ -112,6 +124,8 @@ export function CustomRecurrenceModal({
     onClose();
   };
 
+  const endTypeLabel = endType === "never" ? "Never" : endType === "on_date" ? "On date" : `After ${endCount}`;
+
   return (
     <Modal
       visible={visible}
@@ -119,14 +133,13 @@ export function CustomRecurrenceModal({
       title="Custom Recurrence"
       actionLabel="Done"
       onAction={handleDone}
-      fullScreen
     >
-      <ScrollView className="px-5 pt-4" keyboardShouldPersistTaps="handled">
+      <ScrollView className="px-5 pt-3" keyboardShouldPersistTaps="handled">
         {/* Repeat every N [frequency] */}
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Repeat every
         </Text>
-        <View className="flex-row items-center mb-4">
+        <View className="flex-row items-center mb-3">
           <View className="flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-lg mr-3">
             <Pressable
               onPress={() => setInterval((v) => Math.max(1, v - 1))}
@@ -168,7 +181,7 @@ export function CustomRecurrenceModal({
 
         {/* Day-of-week selection (weekly) */}
         {frequency === "weekly" && (
-          <View className="mb-4">
+          <View className="mb-3">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">On</Text>
             <View className="flex-row justify-between">
               {DAY_LABELS.map((label, i) => {
@@ -195,7 +208,7 @@ export function CustomRecurrenceModal({
 
         {/* Monthly anchor */}
         {frequency === "monthly" && (
-          <View className="mb-4">
+          <View className="mb-3">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">On</Text>
             <View className="flex-row bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-3">
               <Pressable
@@ -225,109 +238,105 @@ export function CustomRecurrenceModal({
             </View>
 
             {monthlyMode === "ordinal" && (
-              <View>
-                <View className="flex-row flex-wrap gap-1.5 mb-2">
-                  {ORDINAL_LABELS.map((label, i) => {
-                    const val = ORDINAL_VALUES[i];
-                    const selected = bySetPos === val;
-                    return (
-                      <Pressable
-                        key={val}
-                        onPress={() => setBySetPos(val)}
-                        className={`rounded-full px-3 py-1.5 ${
-                          selected ? "bg-primary-600" : "bg-gray-100 dark:bg-gray-800"
-                        }`}
-                      >
-                        <Text className={`text-xs font-medium capitalize ${
-                          selected ? "text-white" : "text-gray-600 dark:text-gray-400"
-                        }`}>
-                          {label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-                <View className="flex-row flex-wrap gap-1.5">
-                  {DAY_NAMES_FULL.map((name, i) => {
-                    const selected = ordinalDay === i;
-                    return (
-                      <Pressable
-                        key={i}
-                        onPress={() => setOrdinalDay(i)}
-                        className={`rounded-full px-3 py-1.5 ${
-                          selected ? "bg-primary-600" : "bg-gray-100 dark:bg-gray-800"
-                        }`}
-                      >
-                        <Text className={`text-xs font-medium ${
-                          selected ? "text-white" : "text-gray-600 dark:text-gray-400"
-                        }`}>
-                          {name.slice(0, 3)}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => setBySetPos(cycleOrdinal(bySetPos))}
+                  className="flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2"
+                >
+                  <Text className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize mr-1.5">
+                    {ORDINAL_LABELS[ORDINAL_VALUES.indexOf(bySetPos)] ?? "first"}
+                  </Text>
+                  <Ionicons name="chevron-expand-outline" size={14} color={isDark ? "#9ca3af" : "#6b7280"} />
+                </Pressable>
+                <Pressable
+                  onPress={() => setOrdinalDay(cycleOrdinalDay(ordinalDay))}
+                  className="flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2"
+                >
+                  <Text className="text-sm font-medium text-gray-900 dark:text-gray-100 mr-1.5">
+                    {DAY_NAMES_FULL[ordinalDay]}
+                  </Text>
+                  <Ionicons name="chevron-expand-outline" size={14} color={isDark ? "#9ca3af" : "#6b7280"} />
+                </Pressable>
               </View>
             )}
           </View>
         )}
 
-        {/* Ends */}
-        <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ends</Text>
-        <View className="mb-4">
-          <Pressable onPress={() => setEndType("never")} className="flex-row items-center py-2.5">
-            <Ionicons
-              name={endType === "never" ? "radio-button-on" : "radio-button-off"}
-              size={20}
-              color={endType === "never" ? (isDark ? "#60a5fa" : "#2563eb") : (isDark ? "#6b7280" : "#9ca3af")}
-            />
-            <Text className="ml-3 text-sm text-gray-700 dark:text-gray-300">Never</Text>
-          </Pressable>
-
-          <Pressable onPress={() => setEndType("on_date")} className="flex-row items-center py-2.5">
-            <Ionicons
-              name={endType === "on_date" ? "radio-button-on" : "radio-button-off"}
-              size={20}
-              color={endType === "on_date" ? (isDark ? "#60a5fa" : "#2563eb") : (isDark ? "#6b7280" : "#9ca3af")}
-            />
-            <Text className="ml-3 text-sm text-gray-700 dark:text-gray-300">On date</Text>
-          </Pressable>
-          {endType === "on_date" && (
-            <View className="ml-9 mt-1">
-              <DatePicker label="" value={endDate} onChange={setEndDate} minDate={referenceDate} compact />
+        {/* Ends — collapsible */}
+        {!endsExpanded ? (
+          <Pressable
+            onPress={() => setEndsExpanded(true)}
+            className="flex-row items-center justify-between py-2 mb-3"
+          >
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">Ends</Text>
+            <View className="flex-row items-center">
+              <Text className="text-sm text-gray-500 dark:text-gray-400 mr-1">{endTypeLabel}</Text>
+              <Ionicons name="chevron-forward" size={16} color={isDark ? "#6b7280" : "#9ca3af"} />
             </View>
-          )}
+          </Pressable>
+        ) : (
+          <View className="mb-3">
+            <Pressable
+              onPress={() => setEndsExpanded(false)}
+              className="flex-row items-center justify-between mb-1"
+            >
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">Ends</Text>
+              <Ionicons name="chevron-down" size={16} color={isDark ? "#6b7280" : "#9ca3af"} />
+            </Pressable>
+            <Pressable onPress={() => setEndType("never")} className="flex-row items-center py-2">
+              <Ionicons
+                name={endType === "never" ? "radio-button-on" : "radio-button-off"}
+                size={20}
+                color={endType === "never" ? (isDark ? "#60a5fa" : "#2563eb") : (isDark ? "#6b7280" : "#9ca3af")}
+              />
+              <Text className="ml-3 text-sm text-gray-700 dark:text-gray-300">Never</Text>
+            </Pressable>
 
-          <Pressable onPress={() => setEndType("after_count")} className="flex-row items-center py-2.5">
-            <Ionicons
-              name={endType === "after_count" ? "radio-button-on" : "radio-button-off"}
-              size={20}
-              color={endType === "after_count" ? (isDark ? "#60a5fa" : "#2563eb") : (isDark ? "#6b7280" : "#9ca3af")}
-            />
-            <Text className="ml-3 text-sm text-gray-700 dark:text-gray-300">After</Text>
-            {endType === "after_count" && (
-              <View className="flex-row items-center ml-2">
-                <TextInput
-                  className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100 min-w-[48px] text-center"
-                  value={endCount}
-                  onChangeText={setEndCount}
-                  keyboardType="number-pad"
-                />
-                <Text className="ml-2 text-sm text-gray-700 dark:text-gray-300">occurrences</Text>
+            <Pressable onPress={() => setEndType("on_date")} className="flex-row items-center py-2">
+              <Ionicons
+                name={endType === "on_date" ? "radio-button-on" : "radio-button-off"}
+                size={20}
+                color={endType === "on_date" ? (isDark ? "#60a5fa" : "#2563eb") : (isDark ? "#6b7280" : "#9ca3af")}
+              />
+              <Text className="ml-3 text-sm text-gray-700 dark:text-gray-300">On date</Text>
+            </Pressable>
+            {endType === "on_date" && (
+              <View className="ml-9 mt-1">
+                <DatePicker label="" value={endDate} onChange={setEndDate} minDate={referenceDate} compact />
               </View>
             )}
-          </Pressable>
-        </View>
 
-        {/* Live summary */}
-        <View className="bg-primary-50 dark:bg-primary-900/20 rounded-xl px-4 py-3 mb-4">
+            <Pressable onPress={() => setEndType("after_count")} className="flex-row items-center py-2">
+              <Ionicons
+                name={endType === "after_count" ? "radio-button-on" : "radio-button-off"}
+                size={20}
+                color={endType === "after_count" ? (isDark ? "#60a5fa" : "#2563eb") : (isDark ? "#6b7280" : "#9ca3af")}
+              />
+              <Text className="ml-3 text-sm text-gray-700 dark:text-gray-300">After</Text>
+              {endType === "after_count" && (
+                <View className="flex-row items-center ml-2">
+                  <TextInput
+                    className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100 min-w-[48px] text-center"
+                    value={endCount}
+                    onChangeText={setEndCount}
+                    keyboardType="number-pad"
+                  />
+                  <Text className="ml-2 text-sm text-gray-700 dark:text-gray-300">occurrences</Text>
+                </View>
+              )}
+            </Pressable>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Pinned summary footer */}
+      <View className="px-5 pb-5 pt-2 border-t border-gray-100 dark:border-gray-700">
+        <View className="bg-primary-50 dark:bg-primary-900/20 rounded-xl px-4 py-3">
           <Text className="text-sm font-medium text-primary-700 dark:text-primary-300">
             {summary}
           </Text>
         </View>
-
-        <View className="h-8" />
-      </ScrollView>
+      </View>
     </Modal>
   );
 }
