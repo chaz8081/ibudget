@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { View, Text, Switch, Alert } from "react-native";
+import { useRouter } from "expo-router";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useRecurringTransactions } from "@/features/transactions/hooks/useRecurringTransactions";
 import { Card } from "@/components/ui/Card";
@@ -9,6 +10,7 @@ import { formatCents } from "@/utils/currency";
 import { useToast } from "@/contexts/ToastContext";
 
 export default function RecurringTransactionsScreen() {
+  const router = useRouter();
   const { showToast } = useToast();
   const { householdId } = useHousehold();
   const { recurringTransactions, toggleEnabled, deleteRecurring } =
@@ -39,8 +41,10 @@ export default function RecurringTransactionsScreen() {
 
   if (!householdId) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
-        <Text className="text-gray-500 dark:text-gray-400">Set up a household first</Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center px-6">
+        <Text className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No household yet</Text>
+        <Text className="text-gray-500 dark:text-gray-400 text-center mb-6">Create or join a household from the Dashboard to set up recurring transactions.</Text>
+        <Button title="Go to Dashboard" onPress={() => router.replace("/(tabs)/dashboard")} />
       </View>
     );
   }

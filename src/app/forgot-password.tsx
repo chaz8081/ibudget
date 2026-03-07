@@ -54,11 +54,12 @@ export default function ForgotPasswordScreen() {
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10">
-          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center">
+        <View className="mb-10 items-center">
+          <Text className="text-5xl mb-3">💰</Text>
+          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100">
             iBudget
           </Text>
-          <Text className="text-base text-gray-500 dark:text-gray-400 text-center mt-2">
+          <Text className="text-base text-gray-500 dark:text-gray-400 mt-2">
             Reset your password
           </Text>
         </View>

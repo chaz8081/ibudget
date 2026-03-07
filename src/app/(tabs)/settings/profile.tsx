@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Alert } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { usePowerSync } from "@powersync/react";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,7 @@ export default function ProfileScreen() {
     defaultValues: {
       displayName: profile?.display_name ?? "",
     },
+    values: profile ? { displayName: profile.display_name ?? "" } : undefined,
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,6 +55,12 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
+      {user?.email && (
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</Text>
+          <Text className="text-base text-gray-500 dark:text-gray-400">{user.email}</Text>
+        </View>
+      )}
       <FormField
         control={control}
         name="displayName"

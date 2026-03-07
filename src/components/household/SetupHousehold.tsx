@@ -112,6 +112,7 @@ export function SetupHousehold() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
+      <Text className="text-6xl text-center mb-4">💰</Text>
       <Text className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
         Welcome to iBudget
       </Text>

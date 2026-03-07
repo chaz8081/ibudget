@@ -138,8 +138,10 @@ export default function TransactionsScreen() {
 
   if (!householdId) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
-        <Text className="text-gray-500 dark:text-gray-400">Set up a household first</Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center px-6">
+        <Text className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No household yet</Text>
+        <Text className="text-gray-500 dark:text-gray-400 text-center mb-6">Create or join a household from the Dashboard to start tracking transactions.</Text>
+        <Button title="Go to Dashboard" onPress={() => router.replace("/(tabs)/dashboard")} />
       </View>
     );
   }
