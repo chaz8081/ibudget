@@ -14,13 +14,14 @@ import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { useToast } from "@/contexts/ToastContext";
 import { Colors, placeholderColor } from "@/constants/colors";
-import type { Frequency } from "@/features/transactions/utils/recurring-engine";
+import { RecurrencePresetPicker } from "@/components/transactions/RecurrencePresetPicker";
+import { CustomRecurrenceModal } from "@/components/transactions/CustomRecurrenceModal";
+import { type RecurrenceRule } from "@/features/transactions/utils/recurrence-rule";
 
 const transactionSchema = z.object({
   description: z.string(),
   payee: z.string().optional(),
   txDate: z.string().min(1, "Date is required"),
-  endDate: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -51,18 +52,10 @@ type AddTransactionSheetProps = {
     amount: number;
     categoryId: string;
     transactionType: string;
-    frequency: Frequency;
+    recurrenceRule: RecurrenceRule;
     startDate: string;
-    endDate?: string;
   }) => Promise<void>;
 };
-
-const FREQUENCIES: { label: string; value: Frequency }[] = [
-  { label: "Weekly", value: "weekly" },
-  { label: "Biweekly", value: "biweekly" },
-  { label: "Monthly", value: "monthly" },
-  { label: "Yearly", value: "yearly" },
-];
 
 export function AddTransactionSheet({
   visible,
@@ -81,7 +74,6 @@ export function AddTransactionSheet({
       description: "",
       payee: "",
       txDate: new Date().toISOString().split("T")[0],
-      endDate: "",
       notes: "",
     },
   });
@@ -92,10 +84,10 @@ export function AddTransactionSheet({
   const [isLoading, setIsLoading] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
-  const [frequency, setFrequency] = useState<Frequency>("monthly");
-  const watchedTxDate = watch("txDate");
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
+  const [showCustomRecurrence, setShowCustomRecurrence] = useState(false);
 
-  const hasUnsavedChanges = isDirty || amount !== 0 || selectedCategory !== "" || txType !== "expense" || isRecurring;
+  const hasUnsavedChanges = isDirty || amount !== 0 || selectedCategory !== "" || txType !== "expense" || isRecurring || recurrenceRule !== null;
 
   const handleAmountChange = useCallback((text: string) => {
     const cleaned = text.replace(/[^0-9.]/g, "");
@@ -118,13 +110,13 @@ export function AddTransactionSheet({
     setSelectedCategory("");
     setTxType("expense");
     setIsRecurring(false);
-    setFrequency("monthly");
+    setRecurrenceRule(null);
+    setShowCustomRecurrence(false);
     setShowCategoryPicker(false);
     reset({
       description: "",
       payee: "",
       txDate: new Date().toISOString().split("T")[0],
-      endDate: "",
       notes: "",
     });
   }, [reset]);
@@ -178,16 +170,15 @@ export function AddTransactionSheet({
         notes: data.notes?.trim() || undefined,
       });
 
-      if (isRecurring && onSaveRecurring) {
+      if (isRecurring && onSaveRecurring && recurrenceRule) {
         await onSaveRecurring({
           description: resolvedDescription,
           payee: data.payee?.trim() || undefined,
           amount,
           categoryId: selectedCategory,
           transactionType: txType,
-          frequency,
+          recurrenceRule,
           startDate: data.txDate,
-          endDate: data.endDate?.trim() || undefined,
         });
       }
 
@@ -328,49 +319,23 @@ export function AddTransactionSheet({
             </View>
 
             {isRecurring && (
-              <View>
-                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Frequency
-                </Text>
-                <View className="flex-row flex-wrap gap-1.5 mb-2.5">
-                  {FREQUENCIES.map((f) => (
-                    <Pressable
-                      key={f.value}
-                      onPress={() => setFrequency(f.value)}
-                      className={`rounded-full px-2.5 py-1 border ${
-                        frequency === f.value
-                          ? "bg-primary-600 border-primary-600"
-                          : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
-                      }`}
-                    >
-                      <Text
-                        className={`text-sm ${
-                          frequency === f.value ? "text-white" : "text-gray-700 dark:text-gray-300"
-                        }`}
-                      >
-                        {f.label}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-                <Controller
-                  control={control}
-                  name="endDate"
-                  render={({ field: { onChange, value }, fieldState: { error } }) => (
-                    <DatePicker
-                      label="End Date (optional)"
-                      value={value ?? ""}
-                      onChange={onChange}
-                      minDate={watchedTxDate}
-                      error={error?.message}
-                      compact
-                    />
-                  )}
-                />
-              </View>
+              <RecurrencePresetPicker
+                dateStr={watch("txDate")}
+                selectedRule={recurrenceRule}
+                onSelectRule={setRecurrenceRule}
+                onCustomPress={() => setShowCustomRecurrence(true)}
+              />
             )}
           </View>
         )}
+
+        <CustomRecurrenceModal
+          visible={showCustomRecurrence}
+          onClose={() => setShowCustomRecurrence(false)}
+          onSave={(rule) => setRecurrenceRule(rule)}
+          initialRule={recurrenceRule}
+          referenceDate={watch("txDate")}
+        />
 
         <Button title="Save Transaction" onPress={onSubmit} isLoading={isLoading} />
         <View className="h-4" />
