@@ -143,7 +143,7 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error, co
                   className="items-center py-1.5"
                 >
                   <View
-                    className={`w-9 h-9 items-center justify-center rounded-full ${
+                    className={`w-11 h-11 items-center justify-center rounded-full ${
                       isSelected ? "bg-primary-600" : ""
                     }`}
                   >

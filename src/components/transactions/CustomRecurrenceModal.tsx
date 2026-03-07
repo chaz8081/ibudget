@@ -190,7 +190,7 @@ export function CustomRecurrenceModal({
                   <Pressable
                     key={i}
                     onPress={() => toggleDay(i)}
-                    className={`w-10 h-10 rounded-full items-center justify-center ${
+                    className={`w-11 h-11 rounded-full items-center justify-center ${
                       selected ? "bg-primary-600" : "bg-gray-100 dark:bg-gray-800"
                     }`}
                   >
