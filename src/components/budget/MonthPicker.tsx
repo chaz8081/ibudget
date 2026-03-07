@@ -2,6 +2,7 @@ import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
 import { formatMonthYear } from "@/utils/date";
+import { iconColor as getIconColor } from "@/constants/colors";
 
 type MonthPickerProps = {
   month: number;
@@ -17,18 +18,18 @@ export function MonthPicker({
   onNext,
 }: MonthPickerProps) {
   const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#d1d5db" : "#374151";
+  const iconClr = getIconColor(colorScheme === "dark");
 
   return (
     <View className="flex-row items-center justify-between px-4 py-3">
       <Pressable onPress={onPrevious} className="p-2">
-        <Ionicons name="chevron-back" size={24} color={iconColor} />
+        <Ionicons name="chevron-back" size={24} color={iconClr} />
       </Pressable>
       <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100">
         {formatMonthYear(month, year)}
       </Text>
       <Pressable onPress={onNext} className="p-2">
-        <Ionicons name="chevron-forward" size={24} color={iconColor} />
+        <Ionicons name="chevron-forward" size={24} color={iconClr} />
       </Pressable>
     </View>
   );

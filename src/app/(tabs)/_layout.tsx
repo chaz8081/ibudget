@@ -1,32 +1,33 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "nativewind";
+import { useTheme } from "@react-navigation/native";
+import { Colors } from "@/constants/colors";
 
 export default function TabLayout() {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { dark, colors } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#2563eb",
-        tabBarInactiveTintColor: isDark ? "#6b7280" : "#9ca3af",
+        tabBarActiveTintColor: Colors.primary[600],
+        tabBarInactiveTintColor: dark ? Colors.gray[500] : Colors.gray[400],
         headerShown: true,
-        headerStyle: {
-          backgroundColor: isDark ? "#111827" : "#ffffff",
-        },
-        headerTintColor: isDark ? "#f3f4f6" : "#111827",
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: isDark ? "#374151" : "#e5e7eb",
-          backgroundColor: isDark ? "#111827" : "#ffffff",
+          borderTopColor: colors.border,
+          backgroundColor: colors.card,
         },
       }}
     >
       <Tabs.Screen
         name="index"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="dashboard"
         options={{
           title: "Dashboard",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),

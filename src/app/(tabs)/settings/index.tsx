@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { seedDemoData } from "@/utils/seed-demo-data";
 import { getErrorMessage } from "@/utils/errors";
 import * as Storage from "@/utils/storage";
+import { Colors } from "@/constants/colors";
 
 type ThemePreference = "light" | "dark" | "system";
 
@@ -55,9 +56,14 @@ export default function SettingsScreen() {
     ]);
   };
 
-  const handleSetTheme = (pref: ThemePreference) => {
-    Storage.setItem(THEME_KEY, pref);
-    Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
+  const handleSetTheme = async (pref: ThemePreference) => {
+    await Storage.setItem(THEME_KEY, pref);
+    // Defer to a separate event loop tick. NativeWind's observable cascade
+    // from Appearance changes disrupts Expo Router's navigation context
+    // if fired during the same React reconciliation cycle.
+    setTimeout(() => {
+      Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
+    }, 50);
   };
 
   // Read current preference from SecureStore for highlight
@@ -89,9 +95,9 @@ export default function SettingsScreen() {
         <Pressable>
           <Card className="mb-2">
             <View className="flex-row items-center">
-              <Ionicons name="person-outline" size={20} color={isDark ? "#9ca3af" : "#6b7280"} />
+              <Ionicons name="person-outline" size={20} color={isDark ? Colors.gray[400] : Colors.gray[500]} />
               <Text className="flex-1 text-base text-gray-900 dark:text-gray-100 ml-3">Edit Profile</Text>
-              <Ionicons name="chevron-forward" size={18} color={isDark ? "#6b7280" : "#9ca3af"} />
+              <Ionicons name="chevron-forward" size={18} color={isDark ? Colors.gray[500] : Colors.gray[400]} />
             </View>
           </Card>
         </Pressable>
@@ -100,7 +106,7 @@ export default function SettingsScreen() {
       {/* Theme selector */}
       <Card className="mb-2">
         <View className="flex-row items-center mb-3">
-          <Ionicons name="color-palette-outline" size={20} color={isDark ? "#9ca3af" : "#6b7280"} />
+          <Ionicons name="color-palette-outline" size={20} color={isDark ? Colors.gray[400] : Colors.gray[500]} />
           <Text className="flex-1 text-base text-gray-900 dark:text-gray-100 ml-3">Appearance</Text>
         </View>
         <View className="flex-row bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
@@ -130,11 +136,11 @@ export default function SettingsScreen() {
       <Pressable onPress={handleSeedData} disabled={seeding}>
         <Card className="mb-2">
           <View className="flex-row items-center">
-            <Ionicons name="flask-outline" size={20} color={isDark ? "#9ca3af" : "#6b7280"} />
+            <Ionicons name="flask-outline" size={20} color={isDark ? Colors.gray[400] : Colors.gray[500]} />
             <Text className="flex-1 text-base text-gray-900 dark:text-gray-100 ml-3">
               {seeding ? "Loading..." : "Load Demo Data"}
             </Text>
-            <Ionicons name="chevron-forward" size={18} color={isDark ? "#6b7280" : "#9ca3af"} />
+            <Ionicons name="chevron-forward" size={18} color={isDark ? Colors.gray[500] : Colors.gray[400]} />
           </View>
         </Card>
       </Pressable>

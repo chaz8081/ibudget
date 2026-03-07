@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { Text, TextInput, View } from "react-native";
 import { useColorScheme } from "nativewind";
 import { formatCents, parseCurrencyInput } from "@/utils/currency";
+import { placeholderColor } from "@/constants/colors";
 
 type CurrencyInputProps = {
   label?: string;
@@ -59,7 +60,7 @@ export function CurrencyInput({
           onBlur={handleBlur}
           keyboardType="decimal-pad"
           placeholder="0.00"
-          placeholderTextColor={isDark ? "#6b7280" : "#9ca3af"}
+          placeholderTextColor={placeholderColor(isDark)}
         />
       </View>
       {error && <Text className="text-sm text-danger-500 mt-1">{error}</Text>}

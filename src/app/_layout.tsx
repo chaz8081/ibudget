@@ -14,6 +14,7 @@ import { DatabaseProvider } from "@/db/provider";
 import { View, ActivityIndicator, Appearance, useColorScheme } from "react-native";
 import * as Storage from "@/utils/storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Colors } from "@/constants/colors";
 
 function AuthGate() {
   const { session, isLoading } = useAuth();
@@ -35,7 +36,7 @@ function AuthGate() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={Colors.primary[600]} />
       </View>
     );
   }
@@ -47,10 +48,10 @@ const CustomDarkTheme: Theme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    card: "#111827",
-    text: "#f3f4f6",
-    border: "#374151",
-    background: "#030712",
+    card: Colors.gray[900],
+    text: Colors.gray[100],
+    border: Colors.gray[700],
+    background: Colors.gray[950],
   },
 };
 
@@ -58,10 +59,10 @@ const CustomLightTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    card: "#ffffff",
-    text: "#111827",
-    border: "#e5e7eb",
-    background: "#f9fafb",
+    card: Colors.white,
+    text: Colors.gray[900],
+    border: Colors.gray[200],
+    background: Colors.gray[50],
   },
 };
 

@@ -5,6 +5,7 @@ import {
   type PressableProps,
 } from "react-native";
 import { useColorScheme } from "nativewind";
+import { Colors } from "@/constants/colors";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -49,9 +50,9 @@ export function Button({
   const spinnerColor =
     variant === "secondary" || variant === "ghost"
       ? isDark
-        ? "#93c5fd"
-        : "#1e40af"
-      : "#fff";
+        ? Colors.primary[300]
+        : Colors.primary[800]
+      : Colors.white;
 
   return (
     <Pressable
