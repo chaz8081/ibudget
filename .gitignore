@@ -41,6 +41,9 @@ yarn-error.*
 /ios
 /android
 
+# WASM binaries copied to public/ for web dev (from node_modules)
+public/*.wasm
+
 # Dolt database files (added by bd init)
 .dolt/
 *.db

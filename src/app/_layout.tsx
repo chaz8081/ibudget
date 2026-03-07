@@ -7,8 +7,10 @@ import {
   DefaultTheme,
   type Theme,
 } from "@react-navigation/native";
-// Using Supabase Auth (swap to LocalAuthProvider for offline-only dev)
-import { AuthProvider } from "@/features/auth/providers/AuthProvider";
+// Auth provider: set EXPO_PUBLIC_AUTH_PROVIDER=local for offline-only dev
+import { AuthProvider as SupabaseAuthProvider } from "@/features/auth/providers/AuthProvider";
+import { LocalAuthProvider } from "@/features/auth/providers/LocalAuthProvider";
+
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { DatabaseProvider } from "@/db/provider";
 import { View, ActivityIndicator, Appearance, useColorScheme } from "react-native";
@@ -16,6 +18,10 @@ import * as Storage from "@/utils/storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/constants/colors";
 import { ToastProvider } from "@/contexts/ToastContext";
+
+const AuthProvider = process.env.EXPO_PUBLIC_AUTH_PROVIDER === 'local'
+  ? LocalAuthProvider
+  : SupabaseAuthProvider;
 
 function AuthGate() {
   const { session, isLoading } = useAuth();
