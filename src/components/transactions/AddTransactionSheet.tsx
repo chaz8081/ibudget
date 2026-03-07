@@ -13,7 +13,7 @@ import { FormField } from "@/components/forms/FormField";
 import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { useToast } from "@/contexts/ToastContext";
-import { Colors, placeholderColor } from "@/constants/colors";
+import { placeholderColor } from "@/constants/colors";
 import { RecurrencePresetPicker } from "@/components/transactions/RecurrencePresetPicker";
 import { CustomRecurrenceModal } from "@/components/transactions/CustomRecurrenceModal";
 import { type RecurrenceRule } from "@/features/transactions/utils/recurrence-rule";
@@ -86,6 +86,7 @@ export function AddTransactionSheet({
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
   const [showCustomRecurrence, setShowCustomRecurrence] = useState(false);
+  const watchedTxDate = watch("txDate");
 
   const hasUnsavedChanges = isDirty || amount !== 0 || selectedCategory !== "" || txType !== "expense" || isRecurring || recurrenceRule !== null;
 
@@ -320,7 +321,7 @@ export function AddTransactionSheet({
 
             {isRecurring && (
               <RecurrencePresetPicker
-                dateStr={watch("txDate")}
+                dateStr={watchedTxDate}
                 selectedRule={recurrenceRule}
                 onSelectRule={setRecurrenceRule}
                 onCustomPress={() => setShowCustomRecurrence(true)}
@@ -329,13 +330,15 @@ export function AddTransactionSheet({
           </View>
         )}
 
-        <CustomRecurrenceModal
-          visible={showCustomRecurrence}
-          onClose={() => setShowCustomRecurrence(false)}
-          onSave={(rule) => setRecurrenceRule(rule)}
-          initialRule={recurrenceRule}
-          referenceDate={watch("txDate")}
-        />
+        {onSaveRecurring && isRecurring && (
+          <CustomRecurrenceModal
+            visible={showCustomRecurrence}
+            onClose={() => setShowCustomRecurrence(false)}
+            onSave={(rule) => setRecurrenceRule(rule)}
+            initialRule={recurrenceRule}
+            referenceDate={watchedTxDate}
+          />
+        )}
 
         <Button title="Save Transaction" onPress={onSubmit} isLoading={isLoading} />
         <View className="h-4" />
