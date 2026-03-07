@@ -8,13 +8,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCents } from "@/utils/currency";
 import { useToast } from "@/contexts/ToastContext";
 
-const FREQUENCY_LABELS: Record<string, string> = {
-  weekly: "Weekly",
-  biweekly: "Every 2 weeks",
-  monthly: "Monthly",
-  yearly: "Yearly",
-};
-
 export default function RecurringTransactionsScreen() {
   const { showToast } = useToast();
   const { householdId } = useHousehold();
@@ -79,7 +72,7 @@ export default function RecurringTransactionsScreen() {
                 </Text>
               </View>
               <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                {FREQUENCY_LABELS[rt.frequency] ?? rt.frequency}
+                {rt.recurrenceDescription ?? rt.frequency}
                 {" \u00B7 "}
                 Next: {rt.next_occurrence_date}
               </Text>
