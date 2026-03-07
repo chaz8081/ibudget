@@ -12,9 +12,11 @@ type ModalProps = {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  actionLabel?: string;
+  onAction?: () => void;
 };
 
-export function Modal({ visible, onClose, title, children }: ModalProps) {
+export function Modal({ visible, onClose, title, children, actionLabel, onAction }: ModalProps) {
   return (
     <RNModal
       visible={visible}
@@ -30,9 +32,9 @@ export function Modal({ visible, onClose, title, children }: ModalProps) {
           <View className="bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85%]">
             <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-700">
               <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">{title}</Text>
-              <Pressable onPress={onClose} className="p-2">
+              <Pressable onPress={onAction ?? onClose} className="p-2">
                 <Text className="text-primary-600 text-base font-semibold">
-                  Done
+                  {actionLabel ?? "Done"}
                 </Text>
               </Pressable>
             </View>

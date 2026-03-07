@@ -48,7 +48,7 @@ export function AssignIncomeModal({
   }, [allocations, onSave, onClose]);
 
   return (
-    <Modal visible={visible} onClose={handleSave} title="Assign Income">
+    <Modal visible={visible} onClose={onClose} title="Assign Income" actionLabel="Save" onAction={handleSave}>
       <View className="px-6 py-3 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row justify-between">
           <Text className="text-sm text-gray-500 dark:text-gray-400">Income</Text>
