@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { Modal } from "@/components/ui/Modal";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { formatCents } from "@/utils/currency";
@@ -20,6 +20,14 @@ export function AssignIncomeModal({
   totalIncome,
   onSave,
 }: AssignIncomeModalProps) {
+  const [initialAllocations] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    envelopes.forEach((e) => {
+      initial[e.id] = e.allocated;
+    });
+    return initial;
+  });
+
   const [allocations, setAllocations] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
     envelopes.forEach((e) => {
@@ -27,6 +35,29 @@ export function AssignIncomeModal({
     });
     return initial;
   });
+
+  const isDirty = Object.keys(allocations).some(
+    (key) => allocations[key] !== (initialAllocations[key] ?? 0)
+  );
+
+  const handleClose = useCallback(() => {
+    if (isDirty) {
+      Alert.alert(
+        "Discard Changes?",
+        "You have unsaved allocation changes. Are you sure you want to discard them?",
+        [
+          { text: "Keep Editing", style: "cancel" },
+          {
+            text: "Discard",
+            style: "destructive",
+            onPress: onClose,
+          },
+        ]
+      );
+    } else {
+      onClose();
+    }
+  }, [isDirty, onClose]);
 
   const totalAllocated = Object.values(allocations).reduce(
     (sum, v) => sum + v,
@@ -48,7 +79,7 @@ export function AssignIncomeModal({
   }, [allocations, onSave, onClose]);
 
   return (
-    <Modal visible={visible} onClose={onClose} title="Assign Income" actionLabel="Save" onAction={handleSave}>
+    <Modal visible={visible} onClose={handleClose} title="Assign Income" actionLabel="Save" onAction={handleSave}>
       <View className="px-6 py-3 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row justify-between">
           <Text className="text-sm text-gray-500 dark:text-gray-400">Income</Text>

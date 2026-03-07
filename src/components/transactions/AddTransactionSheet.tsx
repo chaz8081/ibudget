@@ -68,7 +68,7 @@ export function AddTransactionSheet({
   onSaveRecurring,
 }: AddTransactionSheetProps) {
   const { showToast } = useToast();
-  const { control, handleSubmit, reset, watch } = useForm<TransactionFormData>({
+  const { control, handleSubmit, reset, watch, formState: { isDirty } } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     mode: "onBlur",
     defaultValues: {
@@ -86,6 +86,8 @@ export function AddTransactionSheet({
   const [frequency, setFrequency] = useState<Frequency>("monthly");
   const watchedTxDate = watch("txDate");
 
+  const hasUnsavedChanges = isDirty || amount !== 0 || selectedCategory !== "" || txType !== "expense" || isRecurring;
+
   const resetForm = useCallback(() => {
     setAmount(0);
     setSelectedCategory("");
@@ -99,6 +101,28 @@ export function AddTransactionSheet({
       endDate: "",
     });
   }, [reset]);
+
+  const handleClose = useCallback(() => {
+    if (hasUnsavedChanges) {
+      Alert.alert(
+        "Discard Changes?",
+        "You have unsaved changes. Are you sure you want to discard them?",
+        [
+          { text: "Keep Editing", style: "cancel" },
+          {
+            text: "Discard",
+            style: "destructive",
+            onPress: () => {
+              resetForm();
+              onClose();
+            },
+          },
+        ]
+      );
+    } else {
+      onClose();
+    }
+  }, [hasUnsavedChanges, resetForm, onClose]);
 
   const onSubmit = handleSubmit(async (data) => {
     if (amount === 0) {
@@ -147,7 +171,7 @@ export function AddTransactionSheet({
   });
 
   return (
-    <Modal visible={visible} onClose={onClose} title="Add Transaction">
+    <Modal visible={visible} onClose={handleClose} title="Add Transaction">
       <ScrollView className="px-6 py-4" keyboardShouldPersistTaps="handled">
         {/* Type toggle */}
         <View className="flex-row mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
