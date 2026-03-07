@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import * as SecureStore from "expo-secure-store";
+import * as Storage from "@/utils/storage";
 import * as Crypto from "expo-crypto";
 import { generateId } from "@/utils/uuid";
 import { AuthContext, type AuthUser } from "../AuthContext";
@@ -16,12 +16,12 @@ async function hashPassword(password: string, salt: string): Promise<string> {
 }
 
 async function getStoredUsers(): Promise<StoredUser[]> {
-  const raw = await SecureStore.getItemAsync(USERS_KEY);
+  const raw = await Storage.getItem(USERS_KEY);
   return raw ? JSON.parse(raw) : [];
 }
 
 async function saveStoredUsers(users: StoredUser[]): Promise<void> {
-  await SecureStore.setItemAsync(USERS_KEY, JSON.stringify(users));
+  await Storage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
 export function LocalAuthProvider({
@@ -33,7 +33,7 @@ export function LocalAuthProvider({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    SecureStore.getItemAsync(SESSION_KEY).then((raw) => {
+    Storage.getItem(SESSION_KEY).then((raw) => {
       if (raw) {
         setUser(JSON.parse(raw));
       }
@@ -59,7 +59,7 @@ export function LocalAuthProvider({
       email: found.email,
       displayName: found.displayName,
     };
-    await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(localUser));
+    await Storage.setItem(SESSION_KEY, JSON.stringify(localUser));
     setUser(localUser);
   }, []);
 
@@ -92,14 +92,14 @@ export function LocalAuthProvider({
         email: newUser.email,
         displayName: newUser.displayName,
       };
-      await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(localUser));
+      await Storage.setItem(SESSION_KEY, JSON.stringify(localUser));
       setUser(localUser);
     },
     []
   );
 
   const signOut = useCallback(async () => {
-    await SecureStore.deleteItemAsync(SESSION_KEY);
+    await Storage.deleteItem(SESSION_KEY);
     setUser(null);
   }, []);
 

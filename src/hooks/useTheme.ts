@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useColorScheme as useNativeWindColorScheme } from "nativewind";
-import * as SecureStore from "expo-secure-store";
+import * as Storage from "@/utils/storage";
 
 const THEME_KEY = "ibudget_theme";
 
@@ -13,7 +13,7 @@ export function useTheme() {
 
   // Load saved preference on mount
   useEffect(() => {
-    SecureStore.getItemAsync(THEME_KEY).then((saved) => {
+    Storage.getItem(THEME_KEY).then((saved) => {
       if (saved === "light" || saved === "dark" || saved === "system") {
         setPreference(saved);
         if (saved !== "system") {
@@ -29,7 +29,7 @@ export function useTheme() {
   const setTheme = useCallback(
     async (pref: ThemePreference) => {
       setPreference(pref);
-      await SecureStore.setItemAsync(THEME_KEY, pref);
+      await Storage.setItem(THEME_KEY, pref);
       if (pref === "system") {
         setColorScheme("system");
       } else {

@@ -1,12 +1,16 @@
-import { View, Text, Pressable } from "react-native";
+import { useState } from "react";
+import { View, Text, Pressable, Alert, Appearance, useColorScheme } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { usePowerSync } from "@powersync/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useProfile } from "@/features/auth/hooks/useProfile";
-import { useColorScheme } from "nativewind";
+import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import * as SecureStore from "expo-secure-store";
+import { seedDemoData } from "@/utils/seed-demo-data";
+import { getErrorMessage } from "@/utils/errors";
+import * as Storage from "@/utils/storage";
 
 type ThemePreference = "light" | "dark" | "system";
 
@@ -21,16 +25,39 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
-  const { colorScheme, setColorScheme } = useColorScheme();
+  const { householdId } = useHousehold();
+  const db = usePowerSync();
+  const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeedData = () => {
+    const message = householdId
+      ? "This will add demo data alongside your existing data. Continue?"
+      : "This will create a demo household with sample budget, envelopes, and transactions.";
+    Alert.alert("Load Demo Data", message, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Load",
+        onPress: async () => {
+          if (!user?.id) return;
+          setSeeding(true);
+          try {
+            await seedDemoData(db, user.id);
+            Alert.alert("Success", "Demo data loaded! Go to Dashboard to see it.");
+          } catch (error) {
+            Alert.alert("Error", getErrorMessage(error));
+          } finally {
+            setSeeding(false);
+          }
+        },
+      },
+    ]);
+  };
 
   const handleSetTheme = (pref: ThemePreference) => {
-    SecureStore.setItemAsync(THEME_KEY, pref);
-    if (pref === "system") {
-      setColorScheme("system");
-    } else {
-      setColorScheme(pref);
-    }
+    Storage.setItem(THEME_KEY, pref);
+    Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
   };
 
   // Read current preference from SecureStore for highlight
@@ -98,6 +125,19 @@ export default function SettingsScreen() {
           ))}
         </View>
       </Card>
+
+      {/* Load Demo Data */}
+      <Pressable onPress={handleSeedData} disabled={seeding}>
+        <Card className="mb-2">
+          <View className="flex-row items-center">
+            <Ionicons name="flask-outline" size={20} color={isDark ? "#9ca3af" : "#6b7280"} />
+            <Text className="flex-1 text-base text-gray-900 dark:text-gray-100 ml-3">
+              {seeding ? "Loading..." : "Load Demo Data"}
+            </Text>
+            <Ionicons name="chevron-forward" size={18} color={isDark ? "#6b7280" : "#9ca3af"} />
+          </View>
+        </Card>
+      </Pressable>
 
       <View className="mt-6">
         <Button title="Sign Out" variant="danger" onPress={signOut} />
