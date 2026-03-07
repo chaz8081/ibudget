@@ -8,7 +8,7 @@ import { useBudget } from "@/features/budget/hooks/useBudget";
 import { useCategories } from "@/features/budget/hooks/useCategories";
 import { useTransactions } from "@/features/transactions/hooks/useTransactions";
 import { useRecurringTransactions } from "@/features/transactions/hooks/useRecurringTransactions";
-import type { Frequency } from "@/features/transactions/utils/recurring-engine";
+import { type RecurrenceRule } from "@/features/transactions/utils/recurrence-rule";
 import { TransactionItem } from "@/components/transactions/TransactionItem";
 import { AddTransactionSheet } from "@/components/transactions/AddTransactionSheet";
 import { CategoryPicker } from "@/components/ui/CategoryPicker";
@@ -33,7 +33,7 @@ export default function TransactionsScreen() {
   const { addRecurring } = useRecurringTransactions(householdId);
 
   const [showAdd, setShowAdd] = useState(false);
-  const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [filterCategories, setFilterCategories] = useState<Set<string>>(new Set());
   const [showCategoryFilter, setShowCategoryFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSwipeHint, setShowSwipeHint] = useState(false);
@@ -49,11 +49,23 @@ export default function TransactionsScreen() {
     Storage.setItem("swipe_hint_dismissed", "true");
   }, []);
 
+  const handleToggleCategory = useCallback((id: string) => {
+    setFilterCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
   const filteredTransactions = useMemo(() => {
     let result = transactions;
 
-    if (filterCategory) {
-      result = result.filter((t) => t.category_id === filterCategory);
+    if (filterCategories.size > 0) {
+      result = result.filter((t) => t.category_id != null && filterCategories.has(t.category_id));
     }
 
     if (searchQuery.trim()) {
@@ -68,7 +80,7 @@ export default function TransactionsScreen() {
     }
 
     return result;
-  }, [transactions, filterCategory, searchQuery]);
+  }, [transactions, filterCategories, searchQuery]);
 
   const handleSave = useCallback(
     async (data: {
@@ -115,9 +127,8 @@ export default function TransactionsScreen() {
       amount: number;
       categoryId: string;
       transactionType: string;
-      frequency: Frequency;
+      recurrenceRule: RecurrenceRule;
       startDate: string;
-      endDate?: string;
     }) => {
       if (!householdId) return;
       await addRecurring({ ...data, householdId });
@@ -163,9 +174,9 @@ export default function TransactionsScreen() {
         className="mx-4 mb-2 flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-gray-600"
       >
         <Text className="flex-1 text-base text-gray-900 dark:text-gray-100">
-          {filterCategory
-            ? `${categories.find((c) => c.id === filterCategory)?.icon ?? ""} ${categories.find((c) => c.id === filterCategory)?.name ?? ""}`.trim()
-            : "All Categories"}
+          {filterCategories.size === 0
+            ? "All Categories"
+            : `Categories (${filterCategories.size})`}
         </Text>
         <Ionicons name="chevron-down" size={18} color={isDark ? "#9ca3af" : "#6b7280"} />
       </Pressable>
@@ -174,8 +185,9 @@ export default function TransactionsScreen() {
         visible={showCategoryFilter}
         onClose={() => setShowCategoryFilter(false)}
         categories={categories}
-        selectedId={filterCategory}
-        onSelect={setFilterCategory}
+        selectedIds={filterCategories}
+        onToggle={handleToggleCategory}
+        multiSelect
         showAll
       />
 

@@ -3,7 +3,7 @@ import { usePowerSync } from "@powersync/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RECURRING_TRANSACTIONS_TABLE, TRANSACTIONS_TABLE, BUDGETS_TABLE } from "@/db/tables";
 import { generateId } from "@/utils/uuid";
-import { calculateNextOccurrence, isDue, type Frequency } from "../utils/recurring-engine";
+import { type RecurrenceRule, calculateNextDate, dbColumnsToRule } from "../utils/recurrence-rule";
 
 type RecurringRow = {
   id: string;
@@ -13,12 +13,17 @@ type RecurringRow = {
   amount: number;
   description: string;
   payee: string | null;
-  frequency: Frequency;
+  frequency: string;
   interval: number;
   end_date: string | null;
   next_occurrence_date: string;
   transaction_type: string;
   notes: string | null;
+  by_day_of_week: string | null;
+  by_month_day: string | null;
+  by_set_pos: number | null;
+  end_type: string | null;
+  end_count: number | null;
 };
 
 export function useProcessRecurring() {
@@ -41,8 +46,10 @@ export function useProcessRecurring() {
       );
 
       for (const row of rows as unknown as RecurringRow[]) {
+        const rule = dbColumnsToRule(row);
+
         // Check end_date
-        if (row.end_date && row.next_occurrence_date > row.end_date) {
+        if (rule.endType === "on_date" && rule.endDate && row.next_occurrence_date > rule.endDate) {
           // Past end date — disable
           await db.execute(
             `UPDATE ${RECURRING_TRANSACTIONS_TABLE} SET is_enabled = 0, updated_at = ? WHERE id = ?`,
@@ -94,19 +101,15 @@ export function useProcessRecurring() {
         );
 
         // Advance next_occurrence_date
-        const nextDate = calculateNextOccurrence(
-          row.next_occurrence_date,
-          row.frequency,
-          row.interval
-        );
+        const nextDate = calculateNextDate(row.next_occurrence_date, rule);
 
-        // If next date is past end_date, disable
-        if (row.end_date && nextDate > row.end_date) {
+        // If no next date (end condition met), disable
+        if (nextDate === null) {
           await db.execute(
             `UPDATE ${RECURRING_TRANSACTIONS_TABLE}
-             SET next_occurrence_date = ?, is_enabled = 0, updated_at = ?
+             SET is_enabled = 0, updated_at = ?
              WHERE id = ?`,
-            [nextDate, now, row.id]
+            [now, row.id]
           );
         } else {
           await db.execute(

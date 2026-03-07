@@ -146,6 +146,11 @@ const recurring_transactions = new TableV2(
     is_enabled: column.integer, // 0 or 1
     transaction_type: column.text, // expense or income
     notes: column.text,
+    by_day_of_week: column.text,    // JSON array: [0,1,5] for Sun,Mon,Fri
+    by_month_day: column.text,      // JSON array: [1,15] for 1st and 15th
+    by_set_pos: column.integer,     // ordinal: -1=last, 1-4=first-fourth
+    end_type: column.text,          // "never" | "on_date" | "after_count"
+    end_count: column.integer,      // occurrences count for after_count
     created_at: column.text,
     updated_at: column.text,
   },

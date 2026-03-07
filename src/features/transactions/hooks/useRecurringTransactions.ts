@@ -3,7 +3,7 @@ import { usePowerSync, useQuery } from "@powersync/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RECURRING_TRANSACTIONS_TABLE } from "@/db/tables";
 import { generateId } from "@/utils/uuid";
-import type { Frequency } from "../utils/recurring-engine";
+import { type RecurrenceRule, ruleToDbColumns, dbColumnsToRule, describeRecurrence } from "../utils/recurrence-rule";
 
 export type RecurringTransaction = {
   id: string;
@@ -13,7 +13,7 @@ export type RecurringTransaction = {
   amount: number;
   description: string;
   payee: string | null;
-  frequency: Frequency;
+  frequency: string;
   interval: number;
   start_date: string;
   end_date: string | null;
@@ -21,8 +21,15 @@ export type RecurringTransaction = {
   is_enabled: number;
   transaction_type: string;
   notes: string | null;
+  by_day_of_week: string | null;
+  by_month_day: string | null;
+  by_set_pos: number | null;
+  end_type: string | null;
+  end_count: number | null;
   category_name?: string;
   category_icon?: string;
+  recurrenceRule?: RecurrenceRule;
+  recurrenceDescription?: string;
 };
 
 export function useRecurringTransactions(householdId: string | null) {
@@ -40,6 +47,15 @@ export function useRecurringTransactions(householdId: string | null) {
     user?.id && householdId ? [user.id, householdId] : []
   );
 
+  const enrichedRecurring = (recurringTransactions ?? []).map((rt) => {
+    const rule = dbColumnsToRule(rt);
+    return {
+      ...rt,
+      recurrenceRule: rule,
+      recurrenceDescription: describeRecurrence(rule),
+    };
+  });
+
   const addRecurring = useCallback(
     async (data: {
       householdId: string;
@@ -47,23 +63,24 @@ export function useRecurringTransactions(householdId: string | null) {
       amount: number;
       description: string;
       payee?: string;
-      frequency: Frequency;
-      interval?: number;
+      recurrenceRule: RecurrenceRule;
       startDate: string;
-      endDate?: string;
       transactionType: string;
       notes?: string;
     }) => {
       if (!user) return;
       const id = generateId();
       const now = new Date().toISOString();
+      const cols = ruleToDbColumns(data.recurrenceRule);
 
       await db.execute(
         `INSERT INTO ${RECURRING_TRANSACTIONS_TABLE}
          (id, user_id, household_id, category_id, amount, description, payee,
           frequency, interval, start_date, end_date, next_occurrence_date,
-          is_enabled, transaction_type, notes, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
+          is_enabled, transaction_type, notes,
+          by_day_of_week, by_month_day, by_set_pos, end_type, end_count,
+          created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
           user.id,
@@ -72,13 +89,18 @@ export function useRecurringTransactions(householdId: string | null) {
           data.amount,
           data.description,
           data.payee ?? null,
-          data.frequency,
-          data.interval ?? 1,
+          cols.frequency,
+          cols.interval,
           data.startDate,
-          data.endDate ?? null,
-          data.startDate, // next_occurrence_date starts at start_date
+          cols.end_date,
+          data.startDate,
           data.transactionType,
           data.notes ?? null,
+          cols.by_day_of_week,
+          cols.by_month_day,
+          cols.by_set_pos,
+          cols.end_type,
+          cols.end_count,
           now,
           now,
         ]
@@ -108,7 +130,7 @@ export function useRecurringTransactions(householdId: string | null) {
   );
 
   return {
-    recurringTransactions: recurringTransactions ?? [],
+    recurringTransactions: enrichedRecurring,
     addRecurring,
     toggleEnabled,
     deleteRecurring,
