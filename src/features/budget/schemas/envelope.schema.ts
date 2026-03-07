@@ -17,6 +17,7 @@ export const categorySchema = z.object({
     "entertainment",
     "education",
     "giving",
+    "income",
     "other",
   ]),
 });
@@ -36,6 +37,7 @@ export const CATEGORY_GROUPS = [
   { value: "entertainment", label: "Entertainment" },
   { value: "education", label: "Education" },
   { value: "giving", label: "Giving" },
+  { value: "income", label: "Income" },
   { value: "other", label: "Other" },
 ] as const;
 
@@ -56,5 +58,8 @@ export const DEFAULT_CATEGORIES = [
   { name: "Personal Care", group: "personal", icon: "💇" },
   { name: "Subscriptions", group: "entertainment", icon: "📺" },
   { name: "Giving/Charity", group: "giving", icon: "❤️" },
+  { name: "Salary", group: "income", icon: "💰" },
+  { name: "Freelance", group: "income", icon: "💻" },
+  { name: "Refund", group: "income", icon: "🔄" },
   { name: "Miscellaneous", group: "other", icon: "📦" },
 ];

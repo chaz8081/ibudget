@@ -12,6 +12,7 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { FormField } from "@/components/forms/FormField";
 import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
+import { getTransactionLabels } from "@/utils/transaction-labels";
 import { useToast } from "@/contexts/ToastContext";
 import { Colors, placeholderColor } from "@/constants/colors";
 import type { Frequency } from "@/features/transactions/utils/recurring-engine";
@@ -30,6 +31,7 @@ type Category = {
   id: string;
   name: string;
   icon: string | null;
+  category_group?: string;
 };
 
 type AddTransactionSheetProps = {
@@ -202,6 +204,15 @@ export function AddTransactionSheet({
   });
 
   const isExpense = txType === "expense";
+  const labels = getTransactionLabels(isExpense);
+  const filteredCategories = categories.filter((c) =>
+    isExpense ? c.category_group !== "income" : c.category_group === "income" || c.category_group === "other"
+  );
+
+  const handleTypeToggle = useCallback((type: "expense" | "income") => {
+    setTxType(type);
+    setSelectedCategory("");
+  }, []);
 
   return (
     <Modal visible={visible} onClose={handleClose} title="Add Transaction" fullScreen>
@@ -211,7 +222,7 @@ export function AddTransactionSheet({
           {/* Type toggle — compact pill */}
           <View className="flex-row bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-3">
             <Pressable
-              onPress={() => setTxType("expense")}
+              onPress={() => handleTypeToggle("expense")}
               className={`px-4 py-1.5 rounded-md ${isExpense ? "bg-white dark:bg-gray-700" : ""}`}
               style={isExpense ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
             >
@@ -220,7 +231,7 @@ export function AddTransactionSheet({
               </Text>
             </Pressable>
             <Pressable
-              onPress={() => setTxType("income")}
+              onPress={() => handleTypeToggle("income")}
               className={`px-4 py-1.5 rounded-md ${!isExpense ? "bg-white dark:bg-gray-700" : ""}`}
               style={!isExpense ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
             >
@@ -258,17 +269,17 @@ export function AddTransactionSheet({
         {/* Form fields — compact spacing */}
         <FormField
           control={control}
-          name="description"
-          label="Description (optional)"
-          placeholder="Description (optional)"
+          name="payee"
+          label={labels.entityLabel}
+          placeholder={labels.entityPlaceholder}
           compact
         />
 
         <FormField
           control={control}
-          name="payee"
-          label="Payee (optional)"
-          placeholder="Who did you pay?"
+          name="description"
+          label="Description (optional)"
+          placeholder={labels.descriptionPlaceholder}
           compact
         />
 
@@ -302,7 +313,7 @@ export function AddTransactionSheet({
         <CategoryPicker
           visible={showCategoryPicker}
           onClose={() => setShowCategoryPicker(false)}
-          categories={categories}
+          categories={filteredCategories}
           selectedId={selectedCategory}
           onSelect={(id) => setSelectedCategory(id ?? "")}
         />

@@ -16,6 +16,7 @@ import { FormField } from "@/components/forms/FormField";
 import { Card } from "@/components/ui/Card";
 import { formatCents } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
+import { getTransactionLabels } from "@/utils/transaction-labels";
 import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CategoryPicker } from "@/components/ui/CategoryPicker";
@@ -125,19 +126,27 @@ export default function TransactionDetailScreen() {
     return <SkeletonDetail />;
   }
 
+  const isExpense = transaction.transaction_type !== "income";
+  const labels = getTransactionLabels(isExpense);
+  const filteredCategories = categories.filter((c) =>
+    isExpense ? c.category_group !== "income" : c.category_group === "income" || c.category_group === "other"
+  );
+
   if (isEditing) {
     return (
       <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4" keyboardShouldPersistTaps="handled">
         <CurrencyInput label="Amount" value={amount} onChangeValue={setAmount} />
         <FormField
           control={control}
-          name="description"
-          label="Description (optional)"
+          name="payee"
+          label={labels.entityLabel}
+          placeholder={labels.entityPlaceholder}
         />
         <FormField
           control={control}
-          name="payee"
-          label="Payee"
+          name="description"
+          label="Description (optional)"
+          placeholder={labels.descriptionPlaceholder}
         />
         <Controller
           control={control}
@@ -163,7 +172,7 @@ export default function TransactionDetailScreen() {
         <CategoryPicker
           visible={showCategoryPicker}
           onClose={() => setShowCategoryPicker(false)}
-          categories={categories}
+          categories={filteredCategories}
           selectedId={selectedCategory}
           onSelect={(id) => setSelectedCategory(id ?? "")}
         />
@@ -202,7 +211,7 @@ export default function TransactionDetailScreen() {
           </View>
           {transaction.payee && (
             <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-500 dark:text-gray-400">Payee</Text>
+              <Text className="text-sm text-gray-500 dark:text-gray-400">{isExpense ? "Payee" : "Source"}</Text>
               <Text className="text-sm text-gray-900 dark:text-gray-100">{transaction.payee}</Text>
             </View>
           )}

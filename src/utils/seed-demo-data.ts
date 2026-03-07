@@ -43,8 +43,8 @@ interface SeedTransaction {
 
 const SEED_TRANSACTIONS: SeedTransaction[] = [
   // Income
-  { categoryName: "Miscellaneous", payee: "Employer", description: "Paycheck", amount: 325000, type: "income", dayOffset: 15 },
-  { categoryName: "Miscellaneous", payee: "Employer", description: "Paycheck", amount: 325000, type: "income", dayOffset: 1 },
+  { categoryName: "Salary", payee: "Employer", description: "Paycheck", amount: 325000, type: "income", dayOffset: 15 },
+  { categoryName: "Salary", payee: "Employer", description: "Paycheck", amount: 325000, type: "income", dayOffset: 1 },
   // Housing
   { categoryName: "Rent/Mortgage", payee: "Lakewood Apartments", description: "March rent", amount: 180000, type: "expense", dayOffset: 28 },
   // Groceries
