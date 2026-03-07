@@ -20,6 +20,7 @@ const transactionSchema = z.object({
   payee: z.string().optional(),
   txDate: z.string().min(1, "Date is required"),
   endDate: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 type TransactionFormData = z.infer<typeof transactionSchema>;
@@ -78,6 +79,7 @@ export function AddTransactionSheet({
       payee: "",
       txDate: new Date().toISOString().split("T")[0],
       endDate: "",
+      notes: "",
     },
   });
   const [amount, setAmount] = useState(0);
@@ -103,6 +105,7 @@ export function AddTransactionSheet({
       payee: "",
       txDate: new Date().toISOString().split("T")[0],
       endDate: "",
+      notes: "",
     });
   }, [reset]);
 
@@ -153,6 +156,7 @@ export function AddTransactionSheet({
         categoryId: selectedCategory,
         transactionType: txType,
         transactionDate: data.txDate,
+        notes: data.notes?.trim() || undefined,
       });
 
       // Also create recurring if toggled on
@@ -258,6 +262,15 @@ export function AddTransactionSheet({
           categories={categories}
           selectedId={selectedCategory}
           onSelect={(id) => setSelectedCategory(id ?? "")}
+        />
+
+        <FormField
+          control={control}
+          name="notes"
+          label="Notes (optional)"
+          placeholder="Any additional details..."
+          multiline
+          numberOfLines={3}
         />
 
         {/* Recurring toggle */}
