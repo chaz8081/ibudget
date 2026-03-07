@@ -14,9 +14,10 @@ type ModalProps = {
   children: React.ReactNode;
   actionLabel?: string;
   onAction?: () => void;
+  fullScreen?: boolean;
 };
 
-export function Modal({ visible, onClose, title, children, actionLabel, onAction }: ModalProps) {
+export function Modal({ visible, onClose, title, children, actionLabel, onAction, fullScreen = false }: ModalProps) {
   return (
     <RNModal
       visible={visible}
@@ -28,8 +29,8 @@ export function Modal({ visible, onClose, title, children, actionLabel, onAction
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85%]">
+        <View className={`flex-1 bg-black/50 ${fullScreen ? "" : "justify-end"}`}>
+          <View className={fullScreen ? "flex-1 bg-white dark:bg-gray-900" : "bg-white dark:bg-gray-900 rounded-t-3xl max-h-[85%]"}>
             <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-700">
               <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">{title}</Text>
               <Pressable onPress={onAction ?? onClose} className="p-2">
