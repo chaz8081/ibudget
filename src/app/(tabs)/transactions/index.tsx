@@ -1,6 +1,8 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { View, Text, FlatList, Pressable, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useColorScheme } from "nativewind";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useBudget } from "@/features/budget/hooks/useBudget";
 import { useCategories } from "@/features/budget/hooks/useCategories";
@@ -12,9 +14,12 @@ import { AddTransactionSheet } from "@/components/transactions/AddTransactionShe
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import * as Storage from "@/utils/storage";
 
 export default function TransactionsScreen() {
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const { householdId } = useHousehold();
   const { budget } = useBudget();
   const { categories } = useCategories(householdId);
@@ -27,6 +32,18 @@ export default function TransactionsScreen() {
   const [showAdd, setShowAdd] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
+
+  useEffect(() => {
+    Storage.getItem("swipe_hint_dismissed").then((val) => {
+      if (val !== "true") setShowSwipeHint(true);
+    });
+  }, []);
+
+  const dismissSwipeHint = useCallback(() => {
+    setShowSwipeHint(false);
+    Storage.setItem("swipe_hint_dismissed", "true");
+  }, []);
 
   const filteredTransactions = useMemo(() => {
     let result = transactions;
@@ -75,12 +92,15 @@ export default function TransactionsScreen() {
           {
             text: "Delete",
             style: "destructive",
-            onPress: () => deleteTransaction(id),
+            onPress: () => {
+              deleteTransaction(id);
+              dismissSwipeHint();
+            },
           },
         ]
       );
     },
-    [deleteTransaction]
+    [deleteTransaction, dismissSwipeHint]
   );
 
   const handleSaveRecurring = useCallback(
@@ -118,6 +138,19 @@ export default function TransactionsScreen() {
           onChangeText={setSearchQuery}
         />
       </View>
+
+      {/* Swipe-to-delete hint */}
+      {showSwipeHint && (
+        <View className="mx-4 mb-2 flex-row items-center bg-primary-50 dark:bg-primary-900/20 rounded-xl px-4 py-3">
+          <Ionicons name="information-circle-outline" size={20} color={isDark ? "#60a5fa" : "#2563eb"} />
+          <Text className="flex-1 text-sm text-primary-700 dark:text-primary-300 ml-2">
+            Swipe left on a transaction to delete it
+          </Text>
+          <Pressable onPress={dismissSwipeHint} className="p-1">
+            <Ionicons name="close" size={18} color={isDark ? "#9ca3af" : "#6b7280"} />
+          </Pressable>
+        </View>
+      )}
 
       {/* Category filter chips */}
       <FlatList
