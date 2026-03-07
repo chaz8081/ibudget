@@ -3,13 +3,18 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useHouseholdMembers } from "@/features/household/hooks/useHouseholdMembers";
 import { MemberCard } from "@/components/household/MemberCard";
+import { SkeletonList } from "@/components/ui/Skeleton";
 
 export default function MembersScreen() {
   const { user } = useAuth();
   const { householdId } = useHousehold();
   const { members, isLoading } = useHouseholdMembers(householdId);
 
-  if (isLoading) return null;
+  if (isLoading) return (
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <SkeletonList count={3} />
+    </View>
+  );
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">

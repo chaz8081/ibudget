@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { formatCents } from "@/utils/currency";
 import { formatTransactionDate } from "@/utils/date";
+import { SkeletonDetail } from "@/components/ui/Skeleton";
 
 type TransactionRow = {
   id: string;
@@ -61,11 +62,7 @@ export default function EnvelopeDetailScreen() {
   );
 
   if (!category) {
-    return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
-        <Text className="text-gray-400 dark:text-gray-500">Loading...</Text>
-      </View>
-    );
+    return <SkeletonDetail />;
   }
 
   return (

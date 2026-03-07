@@ -12,6 +12,7 @@ import { MonthPicker } from "@/components/budget/MonthPicker";
 import { Card } from "@/components/ui/Card";
 import { formatCents } from "@/utils/currency";
 import { getPreviousMonth, getNextMonth } from "@/utils/date";
+import { SkeletonDashboard } from "@/components/ui/Skeleton";
 import { useNavigation } from "expo-router";
 import { useLayoutEffect } from "react";
 
@@ -53,7 +54,7 @@ export default function HouseholdScreen() {
     }
   }, [navigation, household, colors, router]);
 
-  if (isLoading) return null;
+  if (isLoading) return <SkeletonDashboard />;
   if (!household) return <SetupHousehold />;
 
   const remaining = summary.total_income - summary.total_spent;

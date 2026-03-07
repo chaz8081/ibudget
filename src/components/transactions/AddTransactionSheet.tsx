@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable, Alert, Switch } from "react-native";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
@@ -192,12 +193,10 @@ export function AddTransactionSheet({
           onChangeText={setPayee}
         />
 
-        <Input
+        <DatePicker
           label="Date"
-          placeholder="YYYY-MM-DD"
           value={txDate}
-          onChangeText={setTxDate}
-          keyboardType="numbers-and-punctuation"
+          onChange={setTxDate}
         />
 
         {/* Category picker */}
@@ -260,12 +259,11 @@ export function AddTransactionSheet({
                     </Pressable>
                   ))}
                 </View>
-                <Input
+                <DatePicker
                   label="End Date (optional)"
-                  placeholder="YYYY-MM-DD"
                   value={endDate}
-                  onChangeText={setEndDate}
-                  keyboardType="numbers-and-punctuation"
+                  onChange={setEndDate}
+                  minDate={txDate}
                 />
               </View>
             )}

@@ -8,13 +8,17 @@ import { useCategories } from "@/features/budget/hooks/useCategories";
 import { useTransactions, type TransactionRow } from "@/features/transactions/hooks/useTransactions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { Card } from "@/components/ui/Card";
 import { formatCents } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { Pressable } from "react-native";
+import { SkeletonDetail } from "@/components/ui/Skeleton";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function TransactionDetailScreen() {
+  const { showToast } = useToast();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
@@ -64,10 +68,11 @@ export default function TransactionDetailScreen() {
         transactionDate: txDate,
       });
       setIsEditing(false);
+      showToast("Transaction updated");
     } catch (error) {
       Alert.alert("Error", getErrorMessage(error));
     }
-  }, [id, description, payee, amount, selectedCategory, txDate, updateTransaction]);
+  }, [id, description, payee, amount, selectedCategory, txDate, updateTransaction, showToast]);
 
   const handleDelete = useCallback(() => {
     Alert.alert(
@@ -89,11 +94,7 @@ export default function TransactionDetailScreen() {
   }, [id, deleteTransaction, router]);
 
   if (!transaction) {
-    return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center">
-        <Text className="text-gray-400 dark:text-gray-500">Loading...</Text>
-      </View>
-    );
+    return <SkeletonDetail />;
   }
 
   if (isEditing) {
@@ -106,7 +107,7 @@ export default function TransactionDetailScreen() {
           onChangeText={setDescription}
         />
         <Input label="Payee" value={payee} onChangeText={setPayee} />
-        <Input label="Date" value={txDate} onChangeText={setTxDate} />
+        <DatePicker label="Date" value={txDate} onChange={setTxDate} />
 
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</Text>
         <View className="flex-row flex-wrap gap-2 mb-4">
