@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "nativewind";
+import { useTheme } from "@react-navigation/native";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useHouseholdBudget } from "@/features/household/hooks/useHouseholdBudget";
 import { SetupHousehold } from "@/components/household/SetupHousehold";
@@ -18,8 +18,7 @@ import { useLayoutEffect } from "react";
 export default function HouseholdScreen() {
   const router = useRouter();
   const navigation = useNavigation();
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { colors } = useTheme();
   const { household, householdId, userRole, isLoading } = useHousehold();
   const [activeTab, setActiveTab] = useState<"budget" | "activity">("budget");
 
@@ -46,13 +45,13 @@ export default function HouseholdScreen() {
             <Ionicons
               name="settings-outline"
               size={22}
-              color={isDark ? "#d1d5db" : "#374151"}
+              color={colors.text}
             />
           </Pressable>
         ),
       });
     }
-  }, [navigation, household, isDark, router]);
+  }, [navigation, household, colors, router]);
 
   if (isLoading) return null;
   if (!household) return <SetupHousehold />;
