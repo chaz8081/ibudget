@@ -1,5 +1,6 @@
 import { View, Text } from "react-native";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { formatCents } from "@/utils/currency";
 
@@ -18,9 +19,11 @@ type CategoryBreakdownProps = {
 export function CategoryBreakdown({ categories }: CategoryBreakdownProps) {
   if (categories.length === 0) {
     return (
-      <View className="items-center py-8">
-        <Text className="text-gray-400 dark:text-gray-500">No budget data yet</Text>
-      </View>
+      <EmptyState
+        icon="📊"
+        title="No Budget Data"
+        message="Set income and allocate to categories to see your budget breakdown"
+      />
     );
   }
 

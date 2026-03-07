@@ -80,6 +80,7 @@ export default function EnvelopesScreen() {
       <EnvelopeList
         envelopes={envelopes}
         onEnvelopePress={handleEnvelopePress}
+        onAddCategory={() => setShowAddModal(true)}
       />
 
       <Modal

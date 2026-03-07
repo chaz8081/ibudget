@@ -1,6 +1,7 @@
 import { View, Text } from "react-native";
 import { useQuery } from "@powersync/react";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCents } from "@/utils/currency";
 import { formatTransactionDate } from "@/utils/date";
 
@@ -41,9 +42,11 @@ export function HouseholdActivity({ householdId, month, year }: HouseholdActivit
 
   if (!transactions || transactions.length === 0) {
     return (
-      <View className="items-center py-8">
-        <Text className="text-gray-400 dark:text-gray-500">No activity yet</Text>
-      </View>
+      <EmptyState
+        icon="📋"
+        title="No Activity Yet"
+        message="Transactions from household members will appear here"
+      />
     );
   }
 

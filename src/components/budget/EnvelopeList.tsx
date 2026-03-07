@@ -1,14 +1,16 @@
 import { View, Text, FlatList } from "react-native";
 import { EnvelopeCard } from "./EnvelopeCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { EnvelopeWithBalance } from "@/features/budget/utils/budget-calculations";
 import { CATEGORY_GROUPS } from "@/features/budget/schemas/envelope.schema";
 
 type EnvelopeListProps = {
   envelopes: EnvelopeWithBalance[];
   onEnvelopePress?: (envelope: EnvelopeWithBalance) => void;
+  onAddCategory?: () => void;
 };
 
-export function EnvelopeList({ envelopes, onEnvelopePress }: EnvelopeListProps) {
+export function EnvelopeList({ envelopes, onEnvelopePress, onAddCategory }: EnvelopeListProps) {
   // Group by category_group
   const grouped = CATEGORY_GROUPS.map((group) => ({
     group: group.label,
@@ -17,9 +19,13 @@ export function EnvelopeList({ envelopes, onEnvelopePress }: EnvelopeListProps) 
 
   if (envelopes.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center py-12">
-        <Text className="text-gray-400 dark:text-gray-500 text-base">No envelopes yet</Text>
-      </View>
+      <EmptyState
+        icon="📁"
+        title="No Envelopes"
+        message="Add a category to start budgeting"
+        actionTitle={onAddCategory ? "Add Category" : undefined}
+        onAction={onAddCategory}
+      />
     );
   }
 

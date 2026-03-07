@@ -3,6 +3,7 @@ import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useRecurringTransactions } from "@/features/transactions/hooks/useRecurringTransactions";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCents } from "@/utils/currency";
 
 const FREQUENCY_LABELS: Record<string, string> = {
@@ -42,14 +43,12 @@ export default function RecurringTransactionsScreen() {
 
   if (recurringTransactions.length === 0) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-950 items-center justify-center px-8">
-        <Text className="text-5xl mb-4">{"🔄"}</Text>
-        <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
-          No Recurring Transactions
-        </Text>
-        <Text className="text-base text-gray-500 dark:text-gray-400 text-center">
-          Set up recurring transactions when adding a new transaction
-        </Text>
+      <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+        <EmptyState
+          icon="🔄"
+          title="No Recurring Transactions"
+          message="Set up recurring transactions when adding a new transaction"
+        />
       </View>
     );
   }
