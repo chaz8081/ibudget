@@ -12,6 +12,7 @@ import { seedDemoData } from "@/utils/seed-demo-data";
 import { getErrorMessage } from "@/utils/errors";
 import * as Storage from "@/utils/storage";
 import { Colors } from "@/constants/colors";
+import { useToast } from "@/contexts/ToastContext";
 
 type ThemePreference = "light" | "dark" | "system";
 
@@ -24,6 +25,7 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
+  const { showToast } = useToast();
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { householdId } = useHousehold();
@@ -45,7 +47,7 @@ export default function SettingsScreen() {
           setSeeding(true);
           try {
             await seedDemoData(db, user.id);
-            Alert.alert("Success", "Demo data loaded! Go to Dashboard to see it.");
+            showToast("Demo data loaded! Go to Dashboard to see it.");
           } catch (error) {
             Alert.alert("Error", getErrorMessage(error));
           } finally {

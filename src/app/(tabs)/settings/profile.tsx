@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { PROFILES_TABLE } from "@/db/tables";
 import { getErrorMessage } from "@/utils/errors";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function ProfileScreen() {
+  const { showToast } = useToast();
   const router = useRouter();
   const db = usePowerSync();
   const { user } = useAuth();
@@ -28,6 +30,7 @@ export default function ProfileScreen() {
         `UPDATE ${PROFILES_TABLE} SET display_name = ?, updated_at = ? WHERE id = ?`,
         [displayName.trim(), new Date().toISOString(), user.id]
       );
+      showToast("Profile saved");
       router.back();
     } catch (error) {
       Alert.alert("Error", getErrorMessage(error));

@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/Input";
 import { getPreviousMonth, getNextMonth } from "@/utils/date";
 import { CATEGORY_GROUPS } from "@/features/budget/schemas/envelope.schema";
 import { getErrorMessage } from "@/utils/errors";
+import { useToast } from "@/contexts/ToastContext";
 import type { EnvelopeWithBalance } from "@/features/budget/utils/budget-calculations";
 
 export default function EnvelopesScreen() {
+  const { showToast } = useToast();
   const router = useRouter();
   const { householdId } = useHousehold();
 
@@ -45,10 +47,11 @@ export default function EnvelopesScreen() {
       await addCategory(newCategoryName.trim(), selectedGroup);
       setNewCategoryName("");
       setShowAddModal(false);
+      showToast("Category added");
     } catch (error) {
       Alert.alert("Error", getErrorMessage(error));
     }
-  }, [newCategoryName, selectedGroup, addCategory]);
+  }, [newCategoryName, selectedGroup, addCategory, showToast]);
 
   if (!householdId) {
     return (

@@ -15,8 +15,10 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import * as Storage from "@/utils/storage";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function TransactionsScreen() {
+  const { showToast } = useToast();
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -95,12 +97,13 @@ export default function TransactionsScreen() {
             onPress: () => {
               deleteTransaction(id);
               dismissSwipeHint();
+              showToast("Transaction deleted");
             },
           },
         ]
       );
     },
-    [deleteTransaction, dismissSwipeHint]
+    [deleteTransaction, dismissSwipeHint, showToast]
   );
 
   const handleSaveRecurring = useCallback(

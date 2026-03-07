@@ -7,6 +7,7 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
+import { useToast } from "@/contexts/ToastContext";
 import type { Frequency } from "@/features/transactions/utils/recurring-engine";
 
 type Category = {
@@ -54,6 +55,7 @@ export function AddTransactionSheet({
   onSave,
   onSaveRecurring,
 }: AddTransactionSheetProps) {
+  const { showToast } = useToast();
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState("");
   const [payee, setPayee] = useState("");
@@ -119,6 +121,7 @@ export function AddTransactionSheet({
         });
       }
 
+      showToast("Transaction created");
       resetForm();
       onClose();
     } catch (error) {
@@ -140,6 +143,7 @@ export function AddTransactionSheet({
     onSaveRecurring,
     onClose,
     resetForm,
+    showToast,
   ]);
 
   return (

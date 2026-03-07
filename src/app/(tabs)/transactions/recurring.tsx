@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { View, Text, Switch, Alert } from "react-native";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useRecurringTransactions } from "@/features/transactions/hooks/useRecurringTransactions";
@@ -5,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCents } from "@/utils/currency";
+import { useToast } from "@/contexts/ToastContext";
 
 const FREQUENCY_LABELS: Record<string, string> = {
   weekly: "Weekly",
@@ -14,9 +16,15 @@ const FREQUENCY_LABELS: Record<string, string> = {
 };
 
 export default function RecurringTransactionsScreen() {
+  const { showToast } = useToast();
   const { householdId } = useHousehold();
   const { recurringTransactions, toggleEnabled, deleteRecurring } =
     useRecurringTransactions(householdId);
+
+  const handleToggle = useCallback((id: string, val: boolean) => {
+    toggleEnabled(id, val);
+    showToast(val ? "Recurring enabled" : "Recurring paused");
+  }, [toggleEnabled, showToast]);
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -27,7 +35,10 @@ export default function RecurringTransactionsScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => deleteRecurring(id),
+          onPress: () => {
+            deleteRecurring(id);
+            showToast("Recurring transaction deleted");
+          },
         },
       ]
     );
@@ -85,7 +96,7 @@ export default function RecurringTransactionsScreen() {
             </Text>
             <Switch
               value={rt.is_enabled === 1}
-              onValueChange={(val) => toggleEnabled(rt.id, val)}
+              onValueChange={(val) => handleToggle(rt.id, val)}
             />
           </View>
           <Button

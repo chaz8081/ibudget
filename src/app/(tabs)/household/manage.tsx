@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/Button";
 import { MemberCard } from "@/components/household/MemberCard";
 import { HOUSEHOLD_MEMBERS_TABLE, PROFILES_TABLE } from "@/db/tables";
 import { getErrorMessage } from "@/utils/errors";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function ManageHouseholdScreen() {
+  const { showToast } = useToast();
   const router = useRouter();
   const db = usePowerSync();
   const { user } = useAuth();
@@ -25,6 +27,7 @@ export default function ManageHouseholdScreen() {
       await Share.share({
         message: `Join my household on iBudget! Use invite code: ${household.invite_code}`,
       });
+      showToast("Invite shared");
     } catch {
       // User cancelled
     }
@@ -50,6 +53,7 @@ export default function ManageHouseholdScreen() {
                 [new Date().toISOString(), user?.id]
               );
               router.replace("/(tabs)/household");
+              showToast("Left household");
             } catch (error) {
               Alert.alert("Error", getErrorMessage(error));
             }

@@ -15,6 +15,7 @@ import { View, ActivityIndicator, Appearance, useColorScheme } from "react-nativ
 import * as Storage from "@/utils/storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/constants/colors";
+import { ToastProvider } from "@/contexts/ToastContext";
 
 function AuthGate() {
   const { session, isLoading } = useAuth();
@@ -101,7 +102,9 @@ export default function RootLayout() {
       <NavigationThemeProvider>
         <AuthProvider>
           <DatabaseProvider>
-            <AuthGate />
+            <ToastProvider>
+              <AuthGate />
+            </ToastProvider>
           </DatabaseProvider>
         </AuthProvider>
       </NavigationThemeProvider>
