@@ -27,7 +27,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "bundler": "metro",
+      "output": "single",
+      "baseUrl": "/ibudget"
     },
     "plugins": [
       ["expo-router", { "root": "./src/app" }],
