@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { View, Text, FlatList, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
@@ -11,6 +11,7 @@ import { useRecurringTransactions } from "@/features/transactions/hooks/useRecur
 import type { Frequency } from "@/features/transactions/utils/recurring-engine";
 import { TransactionItem } from "@/components/transactions/TransactionItem";
 import { AddTransactionSheet } from "@/components/transactions/AddTransactionSheet";
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -33,6 +34,7 @@ export default function TransactionsScreen() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSwipeHint, setShowSwipeHint] = useState(false);
 
@@ -155,31 +157,26 @@ export default function TransactionsScreen() {
         </View>
       )}
 
-      {/* Category filter chips */}
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={[{ id: null, name: "All", icon: null }, ...categories]}
-        keyExtractor={(item) => item.id ?? "all"}
-        contentContainerClassName="px-4 pb-3"
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => setFilterCategory(item.id)}
-            className={`rounded-full px-3 py-1.5 mr-2 border ${
-              filterCategory === item.id
-                ? "bg-primary-600 border-primary-600"
-                : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
-            }`}
-          >
-            <Text
-              className={`text-sm ${
-                filterCategory === item.id ? "text-white" : "text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              {item.icon ? `${item.icon} ` : ""}{item.name}
-            </Text>
-          </Pressable>
-        )}
+      {/* Category filter dropdown */}
+      <Pressable
+        onPress={() => setShowCategoryFilter(true)}
+        className="mx-4 mb-2 flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-gray-600"
+      >
+        <Text className="flex-1 text-base text-gray-900 dark:text-gray-100">
+          {filterCategory
+            ? `${categories.find((c) => c.id === filterCategory)?.icon ?? ""} ${categories.find((c) => c.id === filterCategory)?.name ?? ""}`.trim()
+            : "All Categories"}
+        </Text>
+        <Ionicons name="chevron-down" size={18} color={isDark ? "#9ca3af" : "#6b7280"} />
+      </Pressable>
+
+      <CategoryPicker
+        visible={showCategoryFilter}
+        onClose={() => setShowCategoryFilter(false)}
+        categories={categories}
+        selectedId={filterCategory}
+        onSelect={setFilterCategory}
+        showAll
       />
 
       {filteredTransactions.length === 0 ? (
