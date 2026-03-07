@@ -17,11 +17,13 @@ import { Card } from "@/components/ui/Card";
 import { formatCents } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
 import { SkeletonDetail } from "@/components/ui/Skeleton";
 import { useToast } from "@/contexts/ToastContext";
 
 const editTransactionSchema = z.object({
-  description: z.string().min(1, "Description is required"),
+  description: z.string(),
   payee: z.string().optional(),
   txDate: z.string().min(1, "Date is required"),
 });
@@ -54,6 +56,7 @@ export default function TransactionDetailScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [amount, setAmount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
 
   const { control, handleSubmit, reset } = useForm<EditTransactionFormData>({
     resolver: zodResolver(editTransactionSchema),
@@ -80,8 +83,13 @@ export default function TransactionDetailScreen() {
   const onSubmit = handleSubmit(async (data) => {
     if (!id) return;
     try {
+      const resolvedDescription =
+        data.description?.trim() ||
+        categories.find((c) => c.id === selectedCategory)?.name ||
+        "Transaction";
+
       await updateTransaction(id, {
-        description: data.description,
+        description: resolvedDescription,
         payee: data.payee ?? "",
         amount,
         categoryId: selectedCategory,
@@ -124,7 +132,7 @@ export default function TransactionDetailScreen() {
         <FormField
           control={control}
           name="description"
-          label="Description"
+          label="Description (optional)"
         />
         <FormField
           control={control}
@@ -140,27 +148,25 @@ export default function TransactionDetailScreen() {
         />
 
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</Text>
-        <View className="flex-row flex-wrap gap-2 mb-4">
-          {categories.map((cat) => (
-            <Pressable
-              key={cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
-              className={`rounded-full px-3 py-1.5 border ${
-                selectedCategory === cat.id
-                  ? "bg-primary-600 border-primary-600"
-                  : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
-              }`}
-            >
-              <Text
-                className={`text-sm ${
-                  selectedCategory === cat.id ? "text-white" : "text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                {cat.icon ? `${cat.icon} ` : ""}{cat.name}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        <Pressable
+          onPress={() => setShowCategoryPicker(true)}
+          className="flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-300 dark:border-gray-500 mb-4"
+        >
+          <Text className={`flex-1 text-base ${selectedCategory ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"}`}>
+            {selectedCategory
+              ? `${categories.find((c) => c.id === selectedCategory)?.icon ?? ""} ${categories.find((c) => c.id === selectedCategory)?.name ?? ""}`.trim()
+              : "Select a category"}
+          </Text>
+          <Ionicons name="chevron-down" size={18} color="#9ca3af" />
+        </Pressable>
+
+        <CategoryPicker
+          visible={showCategoryPicker}
+          onClose={() => setShowCategoryPicker(false)}
+          categories={categories}
+          selectedId={selectedCategory}
+          onSelect={(id) => setSelectedCategory(id ?? "")}
+        />
 
         <Button title="Save" onPress={onSubmit} />
         <View className="h-3" />
