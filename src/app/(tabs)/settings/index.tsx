@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Pressable, Alert, Appearance, useColorScheme } from "react-native";
+import { Platform, View, Text, Pressable, Alert, Appearance, useColorScheme } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { usePowerSync } from "@powersync/react";
@@ -63,7 +63,12 @@ export default function SettingsScreen() {
     // Defer Appearance change to next event loop tick to avoid triggering
     // a re-render cascade during the current React reconciliation cycle.
     setTimeout(() => {
-      Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
+      if (Platform.OS === "web") {
+        document.documentElement.style.colorScheme =
+          pref === "system" ? "" : pref;
+      } else {
+        Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
+      }
     }, 0);
   };
 

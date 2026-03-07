@@ -13,7 +13,7 @@ import { LocalAuthProvider } from "@/features/auth/providers/LocalAuthProvider";
 
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { DatabaseProvider } from "@/db/provider";
-import { View, ActivityIndicator, Appearance, useColorScheme } from "react-native";
+import { Platform, View, ActivityIndicator, Appearance, useColorScheme } from "react-native";
 import * as Storage from "@/utils/storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/constants/colors";
@@ -89,7 +89,12 @@ function NavigationThemeProvider({ children }: { children: React.ReactNode }) {
     Storage.getItem("ibudget_theme").then((saved) => {
       setTimeout(() => {
         if (saved === "light" || saved === "dark") {
-          Appearance.setColorScheme(saved);
+          if (Platform.OS === "web") {
+            // On web, toggle the class directly — Appearance API isn't available
+            document.documentElement.style.colorScheme = saved;
+          } else {
+            Appearance.setColorScheme(saved);
+          }
         }
         // Don't set "unspecified" on mount — let the system default stand
       }, 0);

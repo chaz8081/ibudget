@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PowerSyncDatabase } from "@powersync/react-native";
 import { PowerSyncContext } from "@powersync/react";
 import { OPSqliteOpenFactory } from "@powersync/op-sqlite";
@@ -22,17 +22,20 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [db] = useState(getDatabase);
   const [isReady, setIsReady] = useState(false);
+  const hadUser = useRef(false);
 
   useEffect(() => {
     db.init().then(() => setIsReady(true));
   }, [db]);
 
   useEffect(() => {
-    if (!user) {
-      // When user signs out, disconnect and clear local data
-      db.disconnectAndClear().catch(() => {
-        // Ignore errors if not connected
-      });
+    if (user) {
+      hadUser.current = true;
+    } else if (hadUser.current) {
+      // Only clear when the user was signed in and then signed out,
+      // not during initial load when user is momentarily null
+      hadUser.current = false;
+      db.disconnectAndClear().catch(() => {});
     }
     // When Supabase is configured, add: db.connect(connector) here
   }, [user, db]);
