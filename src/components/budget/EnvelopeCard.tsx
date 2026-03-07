@@ -13,7 +13,7 @@ export function EnvelopeCard({ envelope, onPress }: EnvelopeCardProps) {
   const { name, icon, allocated, spent, remaining } = envelope;
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
       <Card className="mb-2">
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">

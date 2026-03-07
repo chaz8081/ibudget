@@ -53,7 +53,7 @@ export function CurrencyInput({
       {label && (
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</Text>
       )}
-      <View className={`flex-row items-center border rounded-xl px-4 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500 ${compact ? "py-2.5" : "py-3"}`}>
+      <View className={`flex-row items-center border rounded-xl px-4 bg-white dark:bg-gray-800 ${error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"} ${compact ? "py-2.5" : "py-3"}`}>
         <Text className="text-base text-gray-500 dark:text-gray-400 mr-1">$</Text>
         <TextInput
           className="flex-1 text-base text-gray-900 dark:text-gray-100"

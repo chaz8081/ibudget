@@ -231,7 +231,7 @@ export default function TransactionsScreen() {
         onPress={() => setShowAdd(true)}
         className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-primary-600 items-center justify-center shadow-lg"
       >
-        <Text className="text-white text-3xl leading-none">+</Text>
+        <Ionicons name="add" size={28} color="white" />
       </Pressable>
 
       <AddTransactionSheet

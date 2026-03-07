@@ -46,8 +46,8 @@ export function BudgetSummary({
               unassigned < 0
                 ? "text-danger-500"
                 : unassigned === 0
-                  ? "text-success-500"
-                  : "text-warning-500"
+                  ? "text-gray-700 dark:text-gray-300"
+                  : "text-success-500"
             }`}
           >
             {formatCents(unassigned)}

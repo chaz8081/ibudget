@@ -25,7 +25,7 @@ export function TransactionItem({ transaction, onPress, onDelete }: TransactionI
   const isIncome = transaction.transaction_type === "income";
 
   const content = (
-    <Pressable onPress={onPress} className="flex-row items-center py-3 px-4 bg-white dark:bg-gray-800">
+    <Pressable onPress={onPress} className="flex-row items-center py-3 px-4 bg-white dark:bg-gray-800" style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
       {transaction.category_icon ? (
         <View className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center mr-3">
           <Text className="text-base">{transaction.category_icon}</Text>
