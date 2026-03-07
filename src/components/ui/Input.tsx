@@ -5,21 +5,22 @@ import { placeholderColor } from "@/constants/colors";
 type InputProps = TextInputProps & {
   label?: string;
   error?: string;
+  compact?: boolean;
 };
 
-export function Input({ label, error, ...props }: InputProps) {
+export function Input({ label, error, compact, ...props }: InputProps) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
 
   return (
-    <View className="mb-4">
+    <View className={compact ? "mb-2.5" : "mb-4"}>
       {label && (
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</Text>
       )}
       <TextInput
-        className={`border rounded-xl px-4 py-3 text-base text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 ${
-          error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"
-        }`}
+        className={`border rounded-xl px-4 text-base text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 ${
+          compact ? "py-2.5" : "py-3"
+        } ${error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"}`}
         placeholderTextColor={placeholderColor(isDark)}
         {...props}
       />

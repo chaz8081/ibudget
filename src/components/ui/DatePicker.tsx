@@ -27,11 +27,12 @@ type DatePickerProps = {
   minDate?: string;
   maxDate?: string;
   error?: string;
+  compact?: boolean;
 };
 
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
-export function DatePicker({ label, value, onChange, minDate, maxDate, error }: DatePickerProps) {
+export function DatePicker({ label, value, onChange, minDate, maxDate, error, compact }: DatePickerProps) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const [visible, setVisible] = useState(false);
@@ -66,7 +67,7 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error }: 
   const displayText = value ? format(parseISO(value), "MMM d, yyyy") : "Select date";
 
   return (
-    <View className="mb-4">
+    <View className={compact ? "mb-2.5" : "mb-4"}>
       {label && (
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {label}
@@ -74,7 +75,7 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error }: 
       )}
       <Pressable
         onPress={handleOpen}
-        className={`border rounded-xl px-4 py-3 bg-white dark:bg-gray-800 ${
+        className={`border rounded-xl px-4 bg-white dark:bg-gray-800 ${compact ? "py-2.5" : "py-3"} ${
           error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"
         }`}
       >

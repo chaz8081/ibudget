@@ -1,18 +1,19 @@
 import { useState, useCallback } from "react";
-import { View, Text, ScrollView, Pressable, Alert, Switch } from "react-native";
+import { View, Text, TextInput, ScrollView, Pressable, Alert, Switch } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Ionicons } from "@expo/vector-icons";
+import { useColorScheme } from "nativewind";
 import { Modal } from "@/components/ui/Modal";
 import { CategoryPicker } from "@/components/ui/CategoryPicker";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
-import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { FormField } from "@/components/forms/FormField";
 import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { useToast } from "@/contexts/ToastContext";
+import { Colors, placeholderColor } from "@/constants/colors";
 import type { Frequency } from "@/features/transactions/utils/recurring-engine";
 
 const transactionSchema = z.object({
@@ -71,6 +72,8 @@ export function AddTransactionSheet({
   onSaveRecurring,
 }: AddTransactionSheetProps) {
   const { showToast } = useToast();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const { control, handleSubmit, reset, watch, formState: { isDirty } } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     mode: "onBlur",
@@ -83,6 +86,7 @@ export function AddTransactionSheet({
     },
   });
   const [amount, setAmount] = useState(0);
+  const [displayAmount, setDisplayAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [txType, setTxType] = useState<"expense" | "income">("expense");
   const [isLoading, setIsLoading] = useState(false);
@@ -93,8 +97,24 @@ export function AddTransactionSheet({
 
   const hasUnsavedChanges = isDirty || amount !== 0 || selectedCategory !== "" || txType !== "expense" || isRecurring;
 
+  const handleAmountChange = useCallback((text: string) => {
+    const cleaned = text.replace(/[^0-9.]/g, "");
+    const parts = cleaned.split(".");
+    const formatted = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : cleaned;
+    setDisplayAmount(formatted);
+    setAmount(parseCurrencyInput(formatted));
+  }, []);
+
+  const handleAmountBlur = useCallback(() => {
+    if (displayAmount) {
+      const cents = parseCurrencyInput(displayAmount);
+      setDisplayAmount((cents / 100).toFixed(2));
+    }
+  }, [displayAmount]);
+
   const resetForm = useCallback(() => {
     setAmount(0);
+    setDisplayAmount("");
     setSelectedCategory("");
     setTxType("expense");
     setIsRecurring(false);
@@ -148,7 +168,6 @@ export function AddTransactionSheet({
         categories.find((c) => c.id === selectedCategory)?.name ||
         "Transaction";
 
-      // Save the one-time transaction
       await onSave({
         description: resolvedDescription,
         payee: data.payee?.trim() || undefined,
@@ -159,7 +178,6 @@ export function AddTransactionSheet({
         notes: data.notes?.trim() || undefined,
       });
 
-      // Also create recurring if toggled on
       if (isRecurring && onSaveRecurring) {
         await onSaveRecurring({
           description: resolvedDescription,
@@ -183,48 +201,67 @@ export function AddTransactionSheet({
     }
   });
 
+  const isExpense = txType === "expense";
+
   return (
     <Modal visible={visible} onClose={handleClose} title="Add Transaction" fullScreen>
-      <ScrollView className="px-6 py-4" keyboardShouldPersistTaps="handled">
-        {/* Type toggle */}
-        <View className="flex-row mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
-          <Pressable
-            onPress={() => setTxType("expense")}
-            className={`flex-1 py-2 rounded-lg items-center ${
-              txType === "expense" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
-            }`}
-          >
+      <ScrollView className="px-5 pt-3 pb-2" keyboardShouldPersistTaps="handled">
+        {/* Hero amount with integrated type toggle */}
+        <View className="items-center mb-3">
+          {/* Type toggle — compact pill */}
+          <View className="flex-row bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-3">
+            <Pressable
+              onPress={() => setTxType("expense")}
+              className={`px-4 py-1.5 rounded-md ${isExpense ? "bg-white dark:bg-gray-700" : ""}`}
+              style={isExpense ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
+            >
+              <Text className={`text-sm font-semibold ${isExpense ? "text-danger-500" : "text-gray-400 dark:text-gray-500"}`}>
+                Expense
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setTxType("income")}
+              className={`px-4 py-1.5 rounded-md ${!isExpense ? "bg-white dark:bg-gray-700" : ""}`}
+              style={!isExpense ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
+            >
+              <Text className={`text-sm font-semibold ${!isExpense ? "text-success-500" : "text-gray-400 dark:text-gray-500"}`}>
+                Income
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Large centered amount */}
+          <View className="flex-row items-baseline justify-center">
             <Text
-              className={`font-semibold ${
-                txType === "expense" ? "text-danger-500" : "text-gray-500 dark:text-gray-400"
+              className={`text-3xl font-light ${
+                isExpense ? "text-gray-400 dark:text-gray-500" : "text-success-500"
               }`}
             >
-              Expense
+              {isExpense ? "-" : "+"}$
             </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setTxType("income")}
-            className={`flex-1 py-2 rounded-lg items-center ${
-              txType === "income" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
-            }`}
-          >
-            <Text
-              className={`font-semibold ${
-                txType === "income" ? "text-success-500" : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              Income
-            </Text>
-          </Pressable>
+            <TextInput
+              className="text-4xl font-bold text-gray-900 dark:text-gray-100 min-w-[80px] text-center"
+              value={displayAmount}
+              onChangeText={handleAmountChange}
+              onBlur={handleAmountBlur}
+              keyboardType="decimal-pad"
+              placeholder="0.00"
+              placeholderTextColor={placeholderColor(isDark)}
+              style={{ paddingVertical: 4 }}
+            />
+          </View>
         </View>
 
-        <CurrencyInput label="Amount" value={amount} onChangeValue={setAmount} />
+        {/* Divider */}
+        <View className="border-b border-gray-100 dark:border-gray-800 mb-3" />
 
+        {/* Form fields — compact spacing */}
         <FormField
           control={control}
           name="description"
           label="Description (optional)"
           placeholder="Description (optional)"
+          compact
         />
 
         <FormField
@@ -232,21 +269,27 @@ export function AddTransactionSheet({
           name="payee"
           label="Payee (optional)"
           placeholder="Who did you pay?"
+          compact
         />
 
-        <Controller
-          control={control}
-          name="txDate"
-          render={({ field: { onChange, value }, fieldState: { error } }) => (
-            <DatePicker label="Date" value={value} onChange={onChange} error={error?.message} />
-          )}
-        />
+        {/* Date + Category side by side labels */}
+        <View className="flex-row gap-3 mb-2.5">
+          <View className="flex-1">
+            <Controller
+              control={control}
+              name="txDate"
+              render={({ field: { onChange, value }, fieldState: { error } }) => (
+                <DatePicker label="Date" value={value} onChange={onChange} error={error?.message} compact />
+              )}
+            />
+          </View>
+        </View>
 
         {/* Category picker */}
-        <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</Text>
+        <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Category</Text>
         <Pressable
           onPress={() => setShowCategoryPicker(true)}
-          className="flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-300 dark:border-gray-500 mb-4"
+          className="flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-300 dark:border-gray-500 mb-3"
         >
           <Text className={`flex-1 text-base ${selectedCategory ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"}`}>
             {selectedCategory
@@ -271,11 +314,12 @@ export function AddTransactionSheet({
           placeholder="Any additional details..."
           multiline
           numberOfLines={3}
+          compact
         />
 
         {/* Recurring toggle */}
         {onSaveRecurring && (
-          <View className="mb-4">
+          <View className="mb-3">
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Make recurring
@@ -285,15 +329,15 @@ export function AddTransactionSheet({
 
             {isRecurring && (
               <View>
-                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Frequency
                 </Text>
-                <View className="flex-row flex-wrap gap-2 mb-3">
+                <View className="flex-row flex-wrap gap-1.5 mb-2.5">
                   {FREQUENCIES.map((f) => (
                     <Pressable
                       key={f.value}
                       onPress={() => setFrequency(f.value)}
-                      className={`rounded-full px-3 py-1.5 border ${
+                      className={`rounded-full px-2.5 py-1 border ${
                         frequency === f.value
                           ? "bg-primary-600 border-primary-600"
                           : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
@@ -319,6 +363,7 @@ export function AddTransactionSheet({
                       onChange={onChange}
                       minDate={watchedTxDate}
                       error={error?.message}
+                      compact
                     />
                   )}
                 />
@@ -328,7 +373,7 @@ export function AddTransactionSheet({
         )}
 
         <Button title="Save Transaction" onPress={onSubmit} isLoading={isLoading} />
-        <View className="h-8" />
+        <View className="h-4" />
       </ScrollView>
     </Modal>
   );

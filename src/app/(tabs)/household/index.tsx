@@ -111,8 +111,9 @@ export default function HouseholdScreen() {
         <Pressable
           onPress={() => setActiveTab("budget")}
           className={`flex-1 py-2 rounded-lg items-center ${
-            activeTab === "budget" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+            activeTab === "budget" ? "bg-white dark:bg-gray-700" : ""
           }`}
+          style={activeTab === "budget" ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 } : undefined}
         >
           <Text
             className={`font-semibold text-sm ${
@@ -127,8 +128,9 @@ export default function HouseholdScreen() {
         <Pressable
           onPress={() => setActiveTab("activity")}
           className={`flex-1 py-2 rounded-lg items-center ${
-            activeTab === "activity" ? "bg-white dark:bg-gray-700 shadow-sm" : ""
+            activeTab === "activity" ? "bg-white dark:bg-gray-700" : ""
           }`}
+          style={activeTab === "activity" ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 } : undefined}
         >
           <Text
             className={`font-semibold text-sm ${

@@ -76,14 +76,17 @@ const CustomLightTheme: Theme = {
 function NavigationThemeProvider({ children }: { children: React.ReactNode }) {
   const colorScheme = useColorScheme();
 
-  // Restore saved theme preference on mount
+  // Restore saved theme preference on mount.
+  // Deferred to avoid triggering Appearance changes during the initial
+  // React render/mount cycle, which can disrupt navigation context on Android.
   useEffect(() => {
     Storage.getItem("ibudget_theme").then((saved) => {
-      if (saved === "light" || saved === "dark") {
-        Appearance.setColorScheme(saved);
-      } else {
-        Appearance.setColorScheme("unspecified");
-      }
+      setTimeout(() => {
+        if (saved === "light" || saved === "dark") {
+          Appearance.setColorScheme(saved);
+        }
+        // Don't set "unspecified" on mount — let the system default stand
+      }, 0);
     });
   }, []);
 

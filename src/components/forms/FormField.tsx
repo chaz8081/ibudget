@@ -6,12 +6,14 @@ type FormFieldProps<T extends FieldValues> = TextInputProps & {
   control: Control<T>;
   name: Path<T>;
   label?: string;
+  compact?: boolean;
 };
 
 export function FormField<T extends FieldValues>({
   control,
   name,
   label,
+  compact,
   ...inputProps
 }: FormFieldProps<T>) {
   return (
@@ -22,6 +24,7 @@ export function FormField<T extends FieldValues>({
         <Input
           label={label}
           error={error?.message}
+          compact={compact}
           onBlur={onBlur}
           onChangeText={onChange}
           value={value}

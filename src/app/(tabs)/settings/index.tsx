@@ -60,12 +60,11 @@ export default function SettingsScreen() {
 
   const handleSetTheme = async (pref: ThemePreference) => {
     await Storage.setItem(THEME_KEY, pref);
-    // Defer to a separate event loop tick. NativeWind's observable cascade
-    // from Appearance changes disrupts Expo Router's navigation context
-    // if fired during the same React reconciliation cycle.
+    // Defer Appearance change to next event loop tick to avoid triggering
+    // a re-render cascade during the current React reconciliation cycle.
     setTimeout(() => {
       Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
-    }, 50);
+    }, 0);
   };
 
   // Read current preference from SecureStore for highlight
@@ -117,8 +116,9 @@ export default function SettingsScreen() {
               key={option.value}
               onPress={() => handleSetTheme(option.value)}
               className={`flex-1 py-2 rounded-lg items-center ${
-                currentPref === option.value ? "bg-white dark:bg-gray-600 shadow-sm" : ""
+                currentPref === option.value ? "bg-white dark:bg-gray-600" : ""
               }`}
+              style={currentPref === option.value ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 } : undefined}
             >
               <Text
                 className={`text-sm font-medium ${
