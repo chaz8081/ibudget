@@ -3,7 +3,9 @@ import { View, Text, ScrollView, Pressable, Alert, Switch } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Ionicons } from "@expo/vector-icons";
 import { Modal } from "@/components/ui/Modal";
+import { CategoryPicker } from "@/components/ui/CategoryPicker";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
@@ -14,7 +16,7 @@ import { useToast } from "@/contexts/ToastContext";
 import type { Frequency } from "@/features/transactions/utils/recurring-engine";
 
 const transactionSchema = z.object({
-  description: z.string().min(1, "Description is required"),
+  description: z.string(),
   payee: z.string().optional(),
   txDate: z.string().min(1, "Date is required"),
   endDate: z.string().optional(),
@@ -83,6 +85,7 @@ export function AddTransactionSheet({
   const [txType, setTxType] = useState<"expense" | "income">("expense");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [frequency, setFrequency] = useState<Frequency>("monthly");
   const watchedTxDate = watch("txDate");
 
@@ -94,6 +97,7 @@ export function AddTransactionSheet({
     setTxType("expense");
     setIsRecurring(false);
     setFrequency("monthly");
+    setShowCategoryPicker(false);
     reset({
       description: "",
       payee: "",
@@ -136,9 +140,14 @@ export function AddTransactionSheet({
 
     setIsLoading(true);
     try {
+      const resolvedDescription =
+        data.description?.trim() ||
+        categories.find((c) => c.id === selectedCategory)?.name ||
+        "Transaction";
+
       // Save the one-time transaction
       await onSave({
-        description: data.description.trim(),
+        description: resolvedDescription,
         payee: data.payee?.trim() || undefined,
         amount,
         categoryId: selectedCategory,
@@ -149,7 +158,7 @@ export function AddTransactionSheet({
       // Also create recurring if toggled on
       if (isRecurring && onSaveRecurring) {
         await onSaveRecurring({
-          description: data.description.trim(),
+          description: resolvedDescription,
           payee: data.payee?.trim() || undefined,
           amount,
           categoryId: selectedCategory,
@@ -171,7 +180,7 @@ export function AddTransactionSheet({
   });
 
   return (
-    <Modal visible={visible} onClose={handleClose} title="Add Transaction">
+    <Modal visible={visible} onClose={handleClose} title="Add Transaction" fullScreen>
       <ScrollView className="px-6 py-4" keyboardShouldPersistTaps="handled">
         {/* Type toggle */}
         <View className="flex-row mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
@@ -210,8 +219,8 @@ export function AddTransactionSheet({
         <FormField
           control={control}
           name="description"
-          label="Description"
-          placeholder="What was this for?"
+          label="Description (optional)"
+          placeholder="Description (optional)"
         />
 
         <FormField
@@ -231,27 +240,25 @@ export function AddTransactionSheet({
 
         {/* Category picker */}
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</Text>
-        <View className="flex-row flex-wrap gap-2 mb-4">
-          {categories.map((cat) => (
-            <Pressable
-              key={cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
-              className={`rounded-full px-3 py-1.5 border ${
-                selectedCategory === cat.id
-                  ? "bg-primary-600 border-primary-600"
-                  : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500"
-              }`}
-            >
-              <Text
-                className={`text-sm ${
-                  selectedCategory === cat.id ? "text-white" : "text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                {cat.icon ? `${cat.icon} ` : ""}{cat.name}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        <Pressable
+          onPress={() => setShowCategoryPicker(true)}
+          className="flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-300 dark:border-gray-500 mb-4"
+        >
+          <Text className={`flex-1 text-base ${selectedCategory ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"}`}>
+            {selectedCategory
+              ? `${categories.find((c) => c.id === selectedCategory)?.icon ?? ""} ${categories.find((c) => c.id === selectedCategory)?.name ?? ""}`.trim()
+              : "Select a category"}
+          </Text>
+          <Ionicons name="chevron-down" size={18} color="#9ca3af" />
+        </Pressable>
+
+        <CategoryPicker
+          visible={showCategoryPicker}
+          onClose={() => setShowCategoryPicker(false)}
+          categories={categories}
+          selectedId={selectedCategory}
+          onSelect={(id) => setSelectedCategory(id ?? "")}
+        />
 
         {/* Recurring toggle */}
         {onSaveRecurring && (
