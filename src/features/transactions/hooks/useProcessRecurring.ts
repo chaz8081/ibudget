@@ -39,13 +39,13 @@ export function useProcessRecurring() {
       const today = new Date().toISOString().split("T")[0];
 
       // Find all enabled recurring transactions that are due
-      const { rows } = await db.execute(
+      const rows = await db.getAll<RecurringRow>(
         `SELECT * FROM ${RECURRING_TRANSACTIONS_TABLE}
          WHERE user_id = ? AND is_enabled = 1 AND next_occurrence_date <= ?`,
         [user.id, today]
       );
 
-      for (const row of rows as unknown as RecurringRow[]) {
+      for (const row of rows) {
         const rule = dbColumnsToRule(row);
 
         // Check end_date
@@ -63,12 +63,12 @@ export function useProcessRecurring() {
         const occMonth = occDate.getMonth() + 1;
         const occYear = occDate.getFullYear();
 
-        const { rows: budgetRows } = await db.execute(
+        const budgetRows = await db.getAll<{ id: string }>(
           `SELECT id FROM ${BUDGETS_TABLE} WHERE user_id = ? AND household_id = ? AND month = ? AND year = ?`,
           [user.id, row.household_id, occMonth, occYear]
         );
 
-        const budgetId = (budgetRows as any)?.[0]?.id;
+        const budgetId = budgetRows[0]?.id;
         if (!budgetId) {
           // No budget for this month yet — skip and let it generate next time
           continue;

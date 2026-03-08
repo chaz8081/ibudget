@@ -13,7 +13,8 @@ import { LocalAuthProvider } from "@/features/auth/providers/LocalAuthProvider";
 
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { DatabaseProvider } from "@/db/provider";
-import { Platform, View, ActivityIndicator, Appearance, useColorScheme } from "react-native";
+import { View, ActivityIndicator } from "react-native";
+import { useColorScheme } from "nativewind";
 import * as Storage from "@/utils/storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/constants/colors";
@@ -80,24 +81,14 @@ const CustomLightTheme: Theme = {
  * this — both RN and NativeWind listen to the same Appearance change events.
  */
 function NavigationThemeProvider({ children }: { children: React.ReactNode }) {
-  const colorScheme = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
 
   // Restore saved theme preference on mount.
-  // Deferred to avoid triggering Appearance changes during the initial
-  // React render/mount cycle, which can disrupt navigation context on Android.
   useEffect(() => {
     Storage.getItem("ibudget_theme").then((saved) => {
-      setTimeout(() => {
-        if (saved === "light" || saved === "dark") {
-          if (Platform.OS === "web") {
-            // On web, toggle the class directly — Appearance API isn't available
-            document.documentElement.style.colorScheme = saved;
-          } else {
-            Appearance.setColorScheme(saved);
-          }
-        }
-        // Don't set "unspecified" on mount — let the system default stand
-      }, 0);
+      if (saved === "light" || saved === "dark") {
+        setColorScheme(saved);
+      }
     });
   }, []);
 

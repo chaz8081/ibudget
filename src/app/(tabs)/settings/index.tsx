@@ -1,22 +1,18 @@
 import { useState } from "react";
-import { Platform, View, Text, Pressable, Alert, Appearance, useColorScheme } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { usePowerSync } from "@powersync/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useProfile } from "@/features/auth/hooks/useProfile";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
+import { useTheme, type ThemePreference } from "@/hooks/useTheme";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { seedDemoData } from "@/utils/seed-demo-data";
 import { getErrorMessage } from "@/utils/errors";
-import * as Storage from "@/utils/storage";
 import { Colors } from "@/constants/colors";
 import { useToast } from "@/contexts/ToastContext";
-
-type ThemePreference = "light" | "dark" | "system";
-
-const THEME_KEY = "ibudget_theme";
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
   { label: "Light", value: "light" },
@@ -30,7 +26,7 @@ export default function SettingsScreen() {
   const { profile } = useProfile();
   const { householdId } = useHousehold();
   const db = usePowerSync();
-  const colorScheme = useColorScheme();
+  const { colorScheme, preference, setTheme } = useTheme();
   const isDark = colorScheme === "dark";
   const [seeding, setSeeding] = useState(false);
 
@@ -49,6 +45,7 @@ export default function SettingsScreen() {
             await seedDemoData(db, user.id);
             showToast("Demo data loaded! Go to Dashboard to see it.");
           } catch (error) {
+            console.error("Seed demo data error:", error);
             Alert.alert("Error", getErrorMessage(error));
           } finally {
             setSeeding(false);
@@ -58,24 +55,9 @@ export default function SettingsScreen() {
     ]);
   };
 
-  const handleSetTheme = async (pref: ThemePreference) => {
-    await Storage.setItem(THEME_KEY, pref);
-    // Defer Appearance change to next event loop tick to avoid triggering
-    // a re-render cascade during the current React reconciliation cycle.
-    setTimeout(() => {
-      if (Platform.OS === "web") {
-        document.documentElement.style.colorScheme =
-          pref === "system" ? "" : pref;
-      } else {
-        Appearance.setColorScheme(pref === "system" ? "unspecified" : pref);
-      }
-    }, 0);
+  const handleSetTheme = (pref: ThemePreference) => {
+    setTheme(pref);
   };
-
-  // Read current preference from SecureStore for highlight
-  // We use colorScheme as a proxy since the preference is applied to NativeWind
-  const currentPref: ThemePreference =
-    colorScheme === "light" ? "light" : colorScheme === "dark" ? "dark" : "system";
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
@@ -121,13 +103,13 @@ export default function SettingsScreen() {
               key={option.value}
               onPress={() => handleSetTheme(option.value)}
               className={`flex-1 py-2 rounded-lg items-center ${
-                currentPref === option.value ? "bg-white dark:bg-gray-600" : ""
+                preference === option.value ? "bg-white dark:bg-gray-600" : ""
               }`}
-              style={currentPref === option.value ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 } : undefined}
+              style={preference === option.value ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 } : undefined}
             >
               <Text
                 className={`text-sm font-medium ${
-                  currentPref === option.value
+                  preference === option.value
                     ? "text-gray-900 dark:text-gray-100"
                     : "text-gray-500 dark:text-gray-400"
                 }`}
