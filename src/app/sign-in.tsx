@@ -20,6 +20,9 @@ import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/Button";
 import { getErrorMessage } from "@/utils/errors";
 
+const allowSignup = process.env.EXPO_PUBLIC_ALLOW_SIGNUP === "true" ||
+  process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local";
+
 export default function SignInScreen() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -91,12 +94,14 @@ export default function SignInScreen() {
           isLoading={isLoading}
         />
 
-        <View className="flex-row justify-center mt-6 gap-1">
-          <Text className="text-gray-500 dark:text-gray-400">Don't have an account?</Text>
-          <Link href="/sign-up" accessibilityRole="link" accessibilityLabel="Sign Up" className="text-primary-600 font-semibold">
-            Sign Up
-          </Link>
-        </View>
+        {allowSignup && (
+          <View className="flex-row justify-center mt-6 gap-1">
+            <Text className="text-gray-500 dark:text-gray-400">Don't have an account?</Text>
+            <Link href="/sign-up" accessibilityRole="link" accessibilityLabel="Sign Up" className="text-primary-600 font-semibold">
+              Sign Up
+            </Link>
+          </View>
+        )}
 
         <View className="flex-row justify-center mt-3">
           <Link

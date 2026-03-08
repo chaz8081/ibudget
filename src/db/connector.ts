@@ -1,11 +1,6 @@
 /**
  * SupabaseConnector — bridges PowerSync CRUD operations to Supabase.
- *
- * This file is a stub for now. When you're ready to enable sync:
- * 1. Set up Supabase project and update .env
- * 2. Set up PowerSync project and deploy sync-rules.yaml
- * 3. Uncomment and configure this connector
- * 4. Call db.connect(connector) in DatabaseProvider
+ * Handles credential fetching (Supabase JWT) and uploading local changes.
  */
 
 import {
@@ -13,7 +8,7 @@ import {
   CrudEntry,
   PowerSyncBackendConnector,
   UpdateType,
-} from "@powersync/react-native";
+} from "@powersync/common";
 import { supabase } from "@/lib/supabase";
 import { POWERSYNC_URL } from "@/lib/constants";
 

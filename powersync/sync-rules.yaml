@@ -1,52 +1,52 @@
-bucket_definitions:
+# See https://docs.powersync.com/sync/advanced/compatibility
+config:
+  edition: 3
 
-  # User's own profile (always synced)
-  user_profile:
-    parameters: SELECT request.user_id() AS user_id
-    data:
-      - SELECT * FROM profiles WHERE id = bucket.user_id
+streams:
+  by_user:
+    # Each user gets their profile + all data for their household(s)
+    auto_subscribe: true
+    queries:
+      # User's own profile
+      - SELECT * FROM profiles WHERE id = auth.user_id()
 
-  # Household data (one bucket per household the user belongs to)
-  household_data:
-    parameters:
-      SELECT hm.household_id
-      FROM household_members hm
-      WHERE hm.user_id = request.user_id()
-    data:
-      - SELECT * FROM households WHERE id = bucket.household_id
-      - SELECT * FROM household_members WHERE household_id = bucket.household_id
-      - SELECT * FROM household_invites WHERE household_id = bucket.household_id
-      - SELECT * FROM categories WHERE household_id = bucket.household_id
-      - SELECT * FROM accounts WHERE household_id = bucket.household_id
+      # Household membership (determines what else syncs)
+      - SELECT * FROM household_members WHERE user_id = auth.user_id()
 
-  # Budget data (per household, includes all members' budgets for aggregate view)
-  household_budgets:
-    parameters:
-      SELECT hm.household_id
-      FROM household_members hm
-      WHERE hm.user_id = request.user_id()
-    data:
-      - SELECT * FROM budgets WHERE household_id = bucket.household_id
-      - >
-        SELECT ea.* FROM envelope_allocations ea
-        JOIN budgets b ON ea.budget_id = b.id
-        WHERE b.household_id = bucket.household_id
+      # Households the user belongs to
+      - SELECT h.* FROM households h
+        WHERE h.id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())
 
-  # Transaction data (per household, for aggregate view)
-  household_transactions:
-    parameters:
-      SELECT hm.household_id
-      FROM household_members hm
-      WHERE hm.user_id = request.user_id()
-    data:
-      - SELECT * FROM transactions WHERE household_id = bucket.household_id
+      # Profiles of fellow household members
+      - SELECT p.* FROM profiles p
+        WHERE p.id IN (SELECT user_id FROM household_members WHERE household_id IN
+          (SELECT household_id FROM household_members WHERE user_id = auth.user_id()))
 
-  # Member profiles (so user can see display names of household members)
-  household_member_profiles:
-    parameters:
-      SELECT hm2.user_id AS member_id
-      FROM household_members hm
-      JOIN household_members hm2 ON hm.household_id = hm2.household_id
-      WHERE hm.user_id = request.user_id()
-    data:
-      - SELECT * FROM profiles WHERE id = bucket.member_id
+      # Invites for user's households
+      - SELECT * FROM household_invites
+        WHERE household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())
+
+      # Categories (shared per household)
+      - SELECT * FROM categories
+        WHERE household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())
+
+      # Budgets (all household members can see each other's budgets)
+      - SELECT * FROM budgets
+        WHERE household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())
+
+      # Envelope allocations (via budgets)
+      - SELECT ea.* FROM envelope_allocations ea
+        WHERE ea.budget_id IN (SELECT id FROM budgets WHERE household_id IN
+          (SELECT household_id FROM household_members WHERE user_id = auth.user_id()))
+
+      # Accounts
+      - SELECT * FROM accounts
+        WHERE household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())
+
+      # Transactions
+      - SELECT * FROM transactions
+        WHERE household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())
+
+      # Recurring transactions
+      - SELECT * FROM recurring_transactions
+        WHERE household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.user_id())

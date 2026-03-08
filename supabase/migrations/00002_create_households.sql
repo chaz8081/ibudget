@@ -2,7 +2,7 @@ CREATE TABLE public.households (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   owner_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  invite_code TEXT UNIQUE DEFAULT encode(gen_random_bytes(6), 'hex'),
+  invite_code TEXT UNIQUE DEFAULT encode(extensions.gen_random_bytes(6), 'hex'),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

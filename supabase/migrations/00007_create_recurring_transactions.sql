@@ -36,7 +36,7 @@ CREATE POLICY "Users can manage their own recurring transactions"
 CREATE TRIGGER set_recurring_transactions_updated_at
     BEFORE UPDATE ON public.recurring_transactions
     FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
+    EXECUTE FUNCTION public.update_updated_at();
 
 -- Add to publication for PowerSync
 ALTER PUBLICATION powersync ADD TABLE public.recurring_transactions;

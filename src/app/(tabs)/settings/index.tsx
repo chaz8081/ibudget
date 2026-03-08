@@ -122,25 +122,27 @@ export default function SettingsScreen() {
         </View>
       </Card>
 
-      {/* Load Demo Data */}
-      <Pressable onPress={handleSeedData} disabled={seeding}>
-        <Card className="mb-2">
-          <View className="flex-row items-center">
-            <Ionicons name="flask-outline" size={20} color={isDark ? Colors.gray[400] : Colors.gray[500]} />
-            <Text className="flex-1 text-base text-gray-900 dark:text-gray-100 ml-3">
-              {seeding ? "Loading..." : "Load Demo Data"}
-            </Text>
-            <Ionicons name="chevron-forward" size={18} color={isDark ? Colors.gray[500] : Colors.gray[400]} />
-          </View>
-        </Card>
-      </Pressable>
+      {/* Load Demo Data — dev only */}
+      {process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local" && (
+        <Pressable onPress={handleSeedData} disabled={seeding}>
+          <Card className="mb-2">
+            <View className="flex-row items-center">
+              <Ionicons name="flask-outline" size={20} color={isDark ? Colors.gray[400] : Colors.gray[500]} />
+              <Text className="flex-1 text-base text-gray-900 dark:text-gray-100 ml-3">
+                {seeding ? "Loading..." : "Load Demo Data"}
+              </Text>
+              <Ionicons name="chevron-forward" size={18} color={isDark ? Colors.gray[500] : Colors.gray[400]} />
+            </View>
+          </Card>
+        </Pressable>
+      )}
 
       <View className="mt-6">
         <Button title="Sign Out" variant="danger" onPress={signOut} />
       </View>
 
       <Text className="text-xs text-gray-400 dark:text-gray-500 text-center mt-8">
-        iBudget v1.0.0 — Local Mode
+        iBudget v1.0.0{process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local" ? " — Local Mode" : ""}
       </Text>
     </View>
   );

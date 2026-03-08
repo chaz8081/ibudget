@@ -4,6 +4,8 @@ import { PowerSyncContext } from "@powersync/react";
 import { OPSqliteOpenFactory } from "@powersync/op-sqlite";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AppSchema } from "./schema";
+import { SupabaseConnector } from "./connector";
+import { POWERSYNC_URL } from "@/lib/constants";
 
 let dbInstance: PowerSyncDatabase | null = null;
 
@@ -18,6 +20,8 @@ function getDatabase(): PowerSyncDatabase {
   return dbInstance;
 }
 
+const isLocalAuth = process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local";
+
 export function DatabaseProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [db] = useState(getDatabase);
@@ -31,13 +35,15 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       hadUser.current = true;
+      // Connect to PowerSync when using real Supabase auth
+      if (!isLocalAuth && POWERSYNC_URL) {
+        const connector = new SupabaseConnector();
+        db.connect(connector);
+      }
     } else if (hadUser.current) {
-      // Only clear when the user was signed in and then signed out,
-      // not during initial load when user is momentarily null
       hadUser.current = false;
       db.disconnectAndClear().catch(() => {});
     }
-    // When Supabase is configured, add: db.connect(connector) here
   }, [user, db]);
 
   if (!isReady) return null;

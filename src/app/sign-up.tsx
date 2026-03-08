@@ -20,6 +20,9 @@ import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/Button";
 import { getErrorMessage } from "@/utils/errors";
 
+const allowSignup = process.env.EXPO_PUBLIC_ALLOW_SIGNUP === "true" ||
+  process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local";
+
 export default function SignUpScreen() {
   const { signUp } = useAuth();
   const router = useRouter();
@@ -49,6 +52,30 @@ export default function SignUpScreen() {
       setIsLoading(false);
     }
   };
+
+  if (!allowSignup) {
+    return (
+      <View className="flex-1 bg-white dark:bg-gray-900 justify-center px-6">
+        <View className="items-center mb-10">
+          <Text className="text-5xl mb-3">💰</Text>
+          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+            iBudget
+          </Text>
+        </View>
+        <View className="items-center">
+          <Text className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Invite Only
+          </Text>
+          <Text className="text-base text-gray-500 dark:text-gray-400 text-center mb-8">
+            iBudget is currently in private beta. If you've received an invite, check your email for sign-in instructions.
+          </Text>
+          <Link href="/sign-in" asChild>
+            <Button title="Back to Sign In" variant="secondary" />
+          </Link>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView

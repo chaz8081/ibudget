@@ -66,6 +66,8 @@ CREATE POLICY "Users can view household members profiles"
     SELECT hm.user_id FROM public.household_members hm
     WHERE hm.household_id IN (SELECT public.get_user_household_ids())
   ));
+CREATE POLICY "Users can insert own profile"
+  ON public.profiles FOR INSERT WITH CHECK (id = auth.uid());
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE USING (id = auth.uid());
 
