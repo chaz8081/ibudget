@@ -13,8 +13,12 @@ if (typeof globalThis.__dirname === "undefined") {
 // Shim the 'url' module that Metro injects for import.meta.url transforms.
 // Metro rewrites `import.meta.url` → `require('url').pathToFileURL(__filename).href`.
 // wa-sqlite derives its WASM directory from this: `new URL(".", scriptName).href`.
-// We return the server origin so it resolves to public/ where the WASM file lives.
+// We return the page's base URL so WASM resolves correctly both in dev
+// (localhost:8081) and production (e.g., chaz8081.github.io/ibudget/).
 const urlModule = require("url");
 if (typeof urlModule.pathToFileURL !== "function") {
-  urlModule.pathToFileURL = (_path: string) => new URL(globalThis.location?.origin || "http://localhost:8081");
+  urlModule.pathToFileURL = (_path: string) => {
+    const base = globalThis.location?.href?.replace(/\/[^/]*$/, "/") || "http://localhost:8081/";
+    return new URL(base);
+  };
 }

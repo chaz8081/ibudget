@@ -31,6 +31,16 @@ jobs:
       - run: npx expo export --platform web
         env:
           NODE_ENV: production
+          EXPO_PUBLIC_AUTH_PROVIDER: local
+
+      - name: Fix asset paths for subdirectory deployment
+        run: |
+          # Expo export generates absolute paths (/_expo/...) which break when
+          # deployed to a subdirectory like /ibudget/. Fix in two places:
+          # 1. HTML: convert to relative paths for initial script/css loading
+          sed -i 's|href="/\([^"]*\)"|href="./\1"|g; s|src="/\([^"]*\)"|src="./\1"|g' dist/index.html
+          # 2. JS bundles: rewrite dynamic import paths for code-split chunks
+          find dist/_expo -name '*.js' -exec sed -i 's|"/_expo/|"/ibudget/_expo/|g' {} +
 
       - name: Copy index.html to 404.html for SPA routing
         run: cp dist/index.html dist/404.html
