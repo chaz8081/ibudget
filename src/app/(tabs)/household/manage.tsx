@@ -1,4 +1,5 @@
 import { View, Text, Share, Alert } from "react-native";
+import { showAlert } from "@/utils/confirm";
 import { useRouter } from "expo-router";
 import { usePowerSync } from "@powersync/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -34,7 +35,7 @@ export default function ManageHouseholdScreen() {
   };
 
   const handleLeave = () => {
-    Alert.alert(
+    showAlert(
       "Leave Household",
       "Are you sure you want to leave this household? You will lose access to all shared data.",
       [

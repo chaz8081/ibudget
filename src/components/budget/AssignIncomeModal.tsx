@@ -1,8 +1,9 @@
 import { useState, useCallback } from "react";
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import { Modal } from "@/components/ui/Modal";
 import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { formatCents } from "@/utils/currency";
+import { showAlert } from "@/utils/confirm";
 import type { EnvelopeWithBalance } from "@/features/budget/utils/budget-calculations";
 
 type AssignIncomeModalProps = {
@@ -42,7 +43,7 @@ export function AssignIncomeModal({
 
   const handleClose = useCallback(() => {
     if (isDirty) {
-      Alert.alert(
+      showAlert(
         "Discard Changes?",
         "You have unsaved allocation changes. Are you sure you want to discard them?",
         [

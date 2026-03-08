@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   Text,
   type PressableProps,
@@ -18,19 +19,19 @@ type ButtonProps = PressableProps & {
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> =
   {
     primary: {
-      container: "bg-primary-600 active:bg-primary-700",
+      container: "bg-primary-600 hover:bg-primary-500 active:bg-primary-700",
       text: "text-white",
     },
     secondary: {
-      container: "bg-gray-200 dark:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600",
+      container: "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-300 dark:active:bg-gray-600",
       text: "text-gray-900 dark:text-gray-100",
     },
     danger: {
-      container: "bg-danger-500 active:bg-danger-600",
+      container: "bg-danger-500 hover:bg-danger-400 active:bg-danger-600",
       text: "text-white",
     },
     ghost: {
-      container: "bg-transparent active:bg-gray-100 dark:active:bg-gray-800",
+      container: "bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 active:bg-gray-100 dark:active:bg-gray-800",
       text: "text-primary-600",
     },
   };
@@ -40,6 +41,7 @@ export function Button({
   variant = "primary",
   isLoading = false,
   disabled,
+  style,
   ...props
 }: ButtonProps) {
   const { colorScheme } = useColorScheme();
@@ -61,6 +63,10 @@ export function Button({
       }`}
       disabled={isDisabled}
       {...props}
+      style={[
+        Platform.OS === "web" ? ({ cursor: "pointer" } as never) : undefined,
+        typeof style === "function" ? undefined : style,
+      ]}
     >
       {isLoading ? (
         <ActivityIndicator color={spinnerColor} />

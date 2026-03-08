@@ -10,6 +10,7 @@ import {
 import { Link, useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { showAlert } from "@/utils/confirm";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
   forgotPasswordSchema,
@@ -33,7 +34,7 @@ export default function ForgotPasswordScreen() {
     setIsLoading(true);
     try {
       await resetPassword(data.email);
-      Alert.alert(
+      showAlert(
         "Email Sent",
         "If an account exists with that email, you will receive a password reset link.",
         [{ text: "OK", onPress: () => router.back() }]

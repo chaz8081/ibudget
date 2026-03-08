@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { View, Text, Switch, Alert } from "react-native";
+import { View, Text, Switch } from "react-native";
 import { useRouter } from "expo-router";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useRecurringTransactions } from "@/features/transactions/hooks/useRecurringTransactions";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCents } from "@/utils/currency";
 import { useToast } from "@/contexts/ToastContext";
+import { showAlert } from "@/utils/confirm";
 
 export default function RecurringTransactionsScreen() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function RecurringTransactionsScreen() {
   }, [toggleEnabled, showToast]);
 
   const handleDelete = (id: string) => {
-    Alert.alert(
+    showAlert(
       "Delete Recurring Transaction",
       "Are you sure you want to delete this recurring transaction?",
       [

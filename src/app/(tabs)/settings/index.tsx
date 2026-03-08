@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View, Text, Pressable, Alert } from "react-native";
+import { showAlert } from "@/utils/confirm";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { usePowerSync } from "@powersync/react";
@@ -34,7 +35,7 @@ export default function SettingsScreen() {
     const message = householdId
       ? "This will add demo data alongside your existing data. Continue?"
       : "This will create a demo household with sample budget, envelopes, and transactions.";
-    Alert.alert("Load Demo Data", message, [
+    showAlert("Load Demo Data", message, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Load",

@@ -5,6 +5,7 @@ import { useQuery } from "@powersync/react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { showAlert } from "@/utils/confirm";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useCategories } from "@/features/budget/hooks/useCategories";
@@ -104,7 +105,7 @@ export default function TransactionDetailScreen() {
   });
 
   const handleDelete = useCallback(() => {
-    Alert.alert(
+    showAlert(
       "Delete Transaction",
       "Are you sure you want to delete this transaction?",
       [

@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { formatCents } from "@/utils/currency";
 import { formatTransactionDate } from "@/utils/date";
@@ -14,7 +14,8 @@ function DeleteAction({ onPress }: { onPress?: () => void }) {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-danger-500 items-center justify-center px-6"
+      className="bg-danger-500 hover:bg-danger-400 items-center justify-center px-6"
+      style={Platform.OS === "web" ? ({ cursor: "pointer" } as never) : undefined}
     >
       <Text className="text-white font-semibold text-sm">Delete</Text>
     </Pressable>
@@ -25,7 +26,14 @@ export function TransactionItem({ transaction, onPress, onDelete }: TransactionI
   const isIncome = transaction.transaction_type === "income";
 
   const content = (
-    <Pressable onPress={onPress} className="flex-row items-center py-3 px-4 bg-white dark:bg-gray-800" style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+    <Pressable
+      onPress={onPress}
+      className="flex-row items-center py-3 px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750"
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.7 : 1,
+        ...(Platform.OS === "web" ? { cursor: "pointer" as never } : {}),
+      })}
+    >
       {transaction.category_icon ? (
         <View className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center mr-3">
           <Text className="text-base">{transaction.category_icon}</Text>
@@ -55,6 +63,20 @@ export function TransactionItem({ transaction, onPress, onDelete }: TransactionI
   );
 
   if (onDelete) {
+    if (Platform.OS === "web") {
+      return (
+        <View className="flex-row items-center bg-white dark:bg-gray-800">
+          <View className="flex-1">{content}</View>
+          <Pressable
+            onPress={onDelete}
+            className="px-3 py-2 mr-2 rounded-lg"
+            style={{ cursor: "pointer" } as never}
+          >
+            <Text className="text-danger-500 text-sm font-semibold">Delete</Text>
+          </Pressable>
+        </View>
+      );
+    }
     return (
       <Swipeable
         renderRightActions={() => <DeleteAction onPress={onDelete} />}

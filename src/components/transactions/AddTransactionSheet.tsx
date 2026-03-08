@@ -14,6 +14,7 @@ import { parseCurrencyInput } from "@/utils/currency";
 import { getErrorMessage } from "@/utils/errors";
 import { getTransactionLabels } from "@/utils/transaction-labels";
 import { useToast } from "@/contexts/ToastContext";
+import { showAlert } from "@/utils/confirm";
 import { placeholderColor } from "@/constants/colors";
 import { RecurrencePresetPicker } from "@/components/transactions/RecurrencePresetPicker";
 import { CustomRecurrenceModal } from "@/components/transactions/CustomRecurrenceModal";
@@ -126,7 +127,7 @@ export function AddTransactionSheet({
 
   const handleClose = useCallback(() => {
     if (hasUnsavedChanges) {
-      Alert.alert(
+      showAlert(
         "Discard Changes?",
         "You have unsaved changes. Are you sure you want to discard them?",
         [

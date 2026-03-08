@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { formatCents } from "@/utils/currency";
@@ -13,7 +13,14 @@ export function EnvelopeCard({ envelope, onPress }: EnvelopeCardProps) {
   const { name, icon, allocated, spent, remaining } = envelope;
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+    <Pressable
+      onPress={onPress}
+      className="rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700"
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.7 : 1,
+        ...(Platform.OS === "web" ? { cursor: "pointer" as never } : {}),
+      })}
+    >
       <Card className="mb-2">
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">

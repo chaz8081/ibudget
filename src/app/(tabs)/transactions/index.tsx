@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { View, Text, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import * as Storage from "@/utils/storage";
 import { useToast } from "@/contexts/ToastContext";
+import { showAlert } from "@/utils/confirm";
 
 export default function TransactionsScreen() {
   const { showToast } = useToast();
@@ -100,7 +101,7 @@ export default function TransactionsScreen() {
 
   const handleDelete = useCallback(
     (id: string) => {
-      Alert.alert(
+      showAlert(
         "Delete Transaction",
         "Are you sure you want to delete this transaction?",
         [
@@ -158,7 +159,7 @@ export default function TransactionsScreen() {
       </View>
 
       {/* Swipe-to-delete hint */}
-      {showSwipeHint && (
+      {showSwipeHint && Platform.OS !== "web" && (
         <View className="mx-4 mb-2 flex-row items-center bg-primary-50 dark:bg-primary-900/20 rounded-xl px-4 py-3">
           <Ionicons name="information-circle-outline" size={20} color={isDark ? "#60a5fa" : "#2563eb"} />
           <Text className="flex-1 text-sm text-primary-700 dark:text-primary-300 ml-2">

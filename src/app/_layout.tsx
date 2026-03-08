@@ -19,6 +19,7 @@ import * as Storage from "@/utils/storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/constants/colors";
 import { ToastProvider } from "@/contexts/ToastContext";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const AuthProvider = process.env.EXPO_PUBLIC_AUTH_PROVIDER === 'local'
   ? LocalAuthProvider
@@ -109,6 +110,7 @@ export default function RootLayout() {
           <DatabaseProvider>
             <ToastProvider>
               <AuthGate />
+              <ConfirmDialog />
             </ToastProvider>
           </DatabaseProvider>
         </AuthProvider>
