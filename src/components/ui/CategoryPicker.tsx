@@ -89,6 +89,9 @@ export function CategoryPicker(props: CategoryPickerProps) {
           return (
             <Pressable
               onPress={() => handlePress(item.id)}
+              accessibilityRole="button"
+              accessibilityLabel={item.name}
+              accessibilityState={{ selected }}
               className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
             >
               {item.icon ? (

@@ -50,6 +50,8 @@ export function ConfirmDialog() {
       >
         <Pressable onPress={(e) => e.stopPropagation()}>
           <View
+            accessibilityRole="alert"
+            accessibilityViewIsModal={true}
             className="bg-white dark:bg-gray-800 rounded-2xl mx-4 overflow-hidden"
             style={{ maxWidth: 340, width: 340 }}
           >
@@ -68,6 +70,8 @@ export function ConfirmDialog() {
                 <Pressable
                   key={index}
                   onPress={() => handleButton(button)}
+                  accessibilityRole="button"
+                  accessibilityLabel={button.text}
                   className={`flex-1 py-3 items-center justify-center ${
                     index > 0
                       ? "border-l border-gray-200 dark:border-gray-700"

@@ -75,6 +75,8 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error, co
       )}
       <Pressable
         onPress={handleOpen}
+        accessibilityRole="button"
+        accessibilityLabel={`${label ?? "Date"}: ${displayText}`}
         className={`border rounded-xl px-4 bg-white dark:bg-gray-800 ${compact ? "py-2.5" : "py-3"} ${
           error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"
         }`}
@@ -97,7 +99,12 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error, co
         <View className="px-6 py-4">
           {/* Month/Year navigation */}
           <View className="flex-row items-center justify-between mb-4">
-            <Pressable onPress={() => setViewMonth(subMonths(viewMonth, 1))} className="p-2">
+            <Pressable
+              onPress={() => setViewMonth(subMonths(viewMonth, 1))}
+              accessibilityRole="button"
+              accessibilityLabel="Previous month"
+              className="p-2"
+            >
               <Ionicons
                 name="chevron-back"
                 size={24}
@@ -107,7 +114,12 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error, co
             <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {format(viewMonth, "MMMM yyyy")}
             </Text>
-            <Pressable onPress={() => setViewMonth(addMonths(viewMonth, 1))} className="p-2">
+            <Pressable
+              onPress={() => setViewMonth(addMonths(viewMonth, 1))}
+              accessibilityRole="button"
+              accessibilityLabel="Next month"
+              className="p-2"
+            >
               <Ionicons
                 name="chevron-forward"
                 size={24}
@@ -139,6 +151,9 @@ export function DatePicker({ label, value, onChange, minDate, maxDate, error, co
                   key={i}
                   onPress={() => !disabled && handleDayPress(day)}
                   disabled={disabled}
+                  accessibilityRole="button"
+                  accessibilityLabel={format(day, "EEEE, MMMM d, yyyy")}
+                  accessibilityState={{ disabled, selected: isSelected }}
                   style={{ width: "14.28%" }}
                   className="items-center py-1.5"
                 >

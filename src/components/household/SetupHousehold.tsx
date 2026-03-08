@@ -63,7 +63,7 @@ export function SetupHousehold() {
     return (
       <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
         <Card>
-          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <Text accessibilityRole="header" className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Create a Household
           </Text>
           <FormField
@@ -72,6 +72,8 @@ export function SetupHousehold() {
             label="Household Name"
             placeholder="e.g., The Smith Family"
             autoFocus
+            returnKeyType="done"
+            onSubmitEditing={handleCreate}
           />
           <Button title="Create" onPress={handleCreate} isLoading={isLoading} />
           <Button
@@ -88,7 +90,7 @@ export function SetupHousehold() {
     return (
       <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
         <Card>
-          <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <Text accessibilityRole="header" className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Join a Household
           </Text>
           <FormField
@@ -98,6 +100,8 @@ export function SetupHousehold() {
             placeholder="Enter invite code"
             autoCapitalize="none"
             autoFocus
+            returnKeyType="done"
+            onSubmitEditing={handleJoin}
           />
           <Button title="Join" onPress={handleJoin} isLoading={isLoading} />
           <Button
@@ -113,7 +117,7 @@ export function SetupHousehold() {
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center px-6">
       <Text className="text-6xl text-center mb-4">💰</Text>
-      <Text className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
+      <Text accessibilityRole="header" className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
         Welcome to iBudget
       </Text>
       <Text className="text-base text-gray-500 dark:text-gray-400 text-center mb-8">

@@ -66,6 +66,8 @@ export default function ProfileScreen() {
         name="displayName"
         label="Display Name"
         autoFocus
+        returnKeyType="done"
+        onSubmitEditing={onSubmit}
       />
       <Button title="Save" onPress={onSubmit} isLoading={isLoading} />
     </View>

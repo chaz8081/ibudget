@@ -55,9 +55,9 @@ export default function ForgotPasswordScreen() {
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10 items-center">
+        <View className="mb-10 items-center" accessibilityLabel="iBudget, Reset your password">
           <Text className="text-5xl mb-3">💰</Text>
-          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+          <Text accessibilityRole="header" className="text-4xl font-bold text-gray-900 dark:text-gray-100">
             iBudget
           </Text>
           <Text className="text-base text-gray-500 dark:text-gray-400 mt-2">
@@ -73,6 +73,8 @@ export default function ForgotPasswordScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
+          returnKeyType="done"
+          onSubmitEditing={handleSubmit(onSubmit)}
         />
 
         <Button
@@ -82,7 +84,7 @@ export default function ForgotPasswordScreen() {
         />
 
         <View className="flex-row justify-center mt-6">
-          <Link href="/sign-in" className="text-primary-600 font-semibold">
+          <Link href="/sign-in" accessibilityRole="link" accessibilityLabel="Back to Sign In" className="text-primary-600 font-semibold">
             Back to Sign In
           </Link>
         </View>

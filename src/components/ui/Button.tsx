@@ -58,6 +58,9 @@ export function Button({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: isDisabled }}
       className={`rounded-xl px-6 py-4 items-center justify-center ${styles.container} ${
         isDisabled ? "opacity-50" : ""
       }`}

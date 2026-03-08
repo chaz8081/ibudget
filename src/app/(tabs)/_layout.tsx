@@ -28,6 +28,7 @@ export default function TabLayout() {
         options={{
           title: "Dashboard",
           headerShown: false,
+          tabBarAccessibilityLabel: "Dashboard tab",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
@@ -38,6 +39,7 @@ export default function TabLayout() {
         options={{
           title: "Envelopes",
           headerShown: false,
+          tabBarAccessibilityLabel: "Envelopes tab",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="wallet-outline" size={size} color={color} />
           ),
@@ -48,6 +50,7 @@ export default function TabLayout() {
         options={{
           title: "Transactions",
           headerShown: false,
+          tabBarAccessibilityLabel: "Transactions tab",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="swap-horizontal-outline" size={size} color={color} />
           ),
@@ -58,6 +61,7 @@ export default function TabLayout() {
         options={{
           title: "Household",
           headerShown: false,
+          tabBarAccessibilityLabel: "Household tab",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="people-outline" size={size} color={color} />
           ),
@@ -68,6 +72,7 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           headerShown: false,
+          tabBarAccessibilityLabel: "Settings tab",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings-outline" size={size} color={color} />
           ),

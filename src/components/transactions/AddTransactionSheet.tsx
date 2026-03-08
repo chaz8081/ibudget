@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, Alert, Switch } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -89,6 +89,8 @@ export function AddTransactionSheet({
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
   const [showCustomRecurrence, setShowCustomRecurrence] = useState(false);
+  const payeeRef = useRef<TextInput>(null);
+  const descriptionRef = useRef<TextInput>(null);
   const watchedTxDate = watch("txDate");
 
   const hasUnsavedChanges = isDirty || amount !== 0 || selectedCategory !== "" || txType !== "expense" || isRecurring || recurrenceRule !== null;
@@ -213,9 +215,12 @@ export function AddTransactionSheet({
         {/* Hero amount with integrated type toggle */}
         <View className="items-center mb-3">
           {/* Type toggle — compact pill */}
-          <View className="flex-row bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-3">
+          <View accessibilityRole="radiogroup" accessibilityLabel="Transaction type" className="flex-row bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-3">
             <Pressable
               onPress={() => handleTypeToggle("expense")}
+              accessibilityRole="radio"
+              accessibilityLabel="Expense"
+              accessibilityState={{ selected: isExpense }}
               className={`px-4 py-1.5 rounded-md ${isExpense ? "bg-white dark:bg-gray-700" : ""}`}
               style={isExpense ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
             >
@@ -225,6 +230,9 @@ export function AddTransactionSheet({
             </Pressable>
             <Pressable
               onPress={() => handleTypeToggle("income")}
+              accessibilityRole="radio"
+              accessibilityLabel="Income"
+              accessibilityState={{ selected: !isExpense }}
               className={`px-4 py-1.5 rounded-md ${!isExpense ? "bg-white dark:bg-gray-700" : ""}`}
               style={!isExpense ? { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
             >
@@ -244,6 +252,7 @@ export function AddTransactionSheet({
               {isExpense ? "-" : "+"}$
             </Text>
             <TextInput
+              accessibilityLabel="Transaction amount"
               className="text-4xl font-bold text-gray-900 dark:text-gray-100 min-w-[80px] text-center"
               value={displayAmount}
               onChangeText={handleAmountChange}
@@ -252,6 +261,9 @@ export function AddTransactionSheet({
               placeholder="0.00"
               placeholderTextColor={placeholderColor(isDark)}
               style={{ paddingVertical: 4 }}
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={() => payeeRef.current?.focus()}
             />
           </View>
         </View>
@@ -266,6 +278,10 @@ export function AddTransactionSheet({
           label={labels.entityLabel}
           placeholder={labels.entityPlaceholder}
           compact
+          inputRef={payeeRef}
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => descriptionRef.current?.focus()}
         />
 
         <FormField
@@ -274,6 +290,8 @@ export function AddTransactionSheet({
           label="Description (optional)"
           placeholder={labels.descriptionPlaceholder}
           compact
+          inputRef={descriptionRef}
+          returnKeyType="done"
         />
 
         {/* Date + Category side by side labels */}
@@ -293,6 +311,8 @@ export function AddTransactionSheet({
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Category</Text>
         <Pressable
           onPress={() => setShowCategoryPicker(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`Category: ${selectedCategory ? categories.find((c) => c.id === selectedCategory)?.name ?? "Select a category" : "Select a category"}`}
           className="flex-row items-center bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-300 dark:border-gray-500 mb-3"
         >
           <Text className={`flex-1 text-base ${selectedCategory ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"}`}>
@@ -328,7 +348,7 @@ export function AddTransactionSheet({
               <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Make recurring
               </Text>
-              <Switch value={isRecurring} onValueChange={setIsRecurring} />
+              <Switch accessibilityLabel="Make recurring" value={isRecurring} onValueChange={setIsRecurring} />
             </View>
 
             {isRecurring && (

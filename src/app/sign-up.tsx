@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   View,
   Text,
+  TextInput,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -23,6 +24,9 @@ export default function SignUpScreen() {
   const { signUp } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
 
   const { control, handleSubmit } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -55,9 +59,9 @@ export default function SignUpScreen() {
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10 items-center">
+        <View className="mb-10 items-center" accessibilityLabel="iBudget, Start your budgeting journey">
           <Text className="text-5xl mb-3">💰</Text>
-          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+          <Text accessibilityRole="header" className="text-4xl font-bold text-gray-900 dark:text-gray-100">
             iBudget
           </Text>
           <Text className="text-base text-gray-500 dark:text-gray-400 mt-2">
@@ -72,6 +76,9 @@ export default function SignUpScreen() {
           placeholder="Your name"
           autoCapitalize="words"
           autoComplete="name"
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => emailRef.current?.focus()}
         />
 
         <FormField
@@ -82,6 +89,10 @@ export default function SignUpScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
+          inputRef={emailRef}
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
 
         <FormField
@@ -91,6 +102,10 @@ export default function SignUpScreen() {
           placeholder="At least 8 characters"
           secureTextEntry
           autoComplete="new-password"
+          inputRef={passwordRef}
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => confirmPasswordRef.current?.focus()}
         />
 
         <FormField
@@ -100,6 +115,9 @@ export default function SignUpScreen() {
           placeholder="Confirm your password"
           secureTextEntry
           autoComplete="new-password"
+          inputRef={confirmPasswordRef}
+          returnKeyType="done"
+          onSubmitEditing={handleSubmit(onSubmit)}
         />
 
         <Button
@@ -110,7 +128,7 @@ export default function SignUpScreen() {
 
         <View className="flex-row justify-center mt-6 gap-1">
           <Text className="text-gray-500 dark:text-gray-400">Already have an account?</Text>
-          <Link href="/sign-in" className="text-primary-600 font-semibold">
+          <Link href="/sign-in" accessibilityRole="link" accessibilityLabel="Sign In" className="text-primary-600 font-semibold">
             Sign In
           </Link>
         </View>

@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Text, TextInput, View, type TextInputProps } from "react-native";
 import { useColorScheme } from "nativewind";
 import { placeholderColor } from "@/constants/colors";
@@ -8,7 +9,7 @@ type InputProps = TextInputProps & {
   compact?: boolean;
 };
 
-export function Input({ label, error, compact, ...props }: InputProps) {
+export const Input = forwardRef<TextInput, InputProps>(({ label, error, compact, ...props }, ref) => {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
 
@@ -18,6 +19,9 @@ export function Input({ label, error, compact, ...props }: InputProps) {
         <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</Text>
       )}
       <TextInput
+        ref={ref}
+        accessibilityLabel={label || props.placeholder}
+        {...(error ? { accessibilityHint: error } : {})}
         className={`border rounded-xl px-4 text-base text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 ${
           compact ? "py-2.5" : "py-3"
         } ${error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"}`}
@@ -29,4 +33,5 @@ export function Input({ label, error, compact, ...props }: InputProps) {
       )}
     </View>
   );
-}
+});
+Input.displayName = "Input";

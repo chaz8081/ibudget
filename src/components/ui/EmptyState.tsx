@@ -19,7 +19,7 @@ export function EmptyState({
   return (
     <View className="flex-1 items-center justify-center px-8 py-12">
       {icon && <Text className="text-5xl mb-4">{icon}</Text>}
-      <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
+      <Text accessibilityRole="header" className="text-xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
         {title}
       </Text>
       <Text className="text-base text-gray-500 dark:text-gray-400 text-center mb-6">

@@ -63,11 +63,13 @@ export function Modal({ visible, onClose, title, children, actionLabel, onAction
             className={fullScreen ? "flex-1" : ""}
             style={isCentered ? { maxWidth: DESKTOP_MAX_WIDTH, width: "100%" } : undefined}
           >
-            <View className={modalContainerClass}>
+            <View className={modalContainerClass} accessibilityViewIsModal={true}>
               <View className={`flex-row items-center justify-between px-6 border-b border-gray-100 dark:border-gray-700 ${fullScreen ? "pt-6 pb-4" : "pt-4 pb-3"}`}>
-                <Text className="text-xl font-bold text-gray-900 dark:text-gray-100">{title}</Text>
+                <Text accessibilityRole="header" className="text-xl font-bold text-gray-900 dark:text-gray-100">{title}</Text>
                 <Pressable
                   onPress={onAction ?? onClose}
+                  accessibilityRole="button"
+                  accessibilityLabel={actionLabel ?? "Done"}
                   className="p-3"
                   style={Platform.OS === "web" ? { cursor: "pointer" } : undefined}
                 >

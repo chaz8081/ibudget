@@ -14,6 +14,8 @@ function DeleteAction({ onPress }: { onPress?: () => void }) {
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel="Delete transaction"
       className="bg-danger-500 hover:bg-danger-400 items-center justify-center px-6"
       style={Platform.OS === "web" ? ({ cursor: "pointer" } as never) : undefined}
     >
@@ -25,9 +27,15 @@ function DeleteAction({ onPress }: { onPress?: () => void }) {
 export function TransactionItem({ transaction, onPress, onDelete }: TransactionItemProps) {
   const isIncome = transaction.transaction_type === "income";
 
+  const displayName = transaction.payee || transaction.description;
+  const amountText = `${isIncome ? "+" : "-"}${formatCents(transaction.amount)}`;
+  const dateText = formatTransactionDate(transaction.transaction_date);
+
   const content = (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${displayName}, ${amountText}, ${dateText}${transaction.category_name ? `, ${transaction.category_name}` : ""}`}
       className="flex-row items-center py-3 px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750"
       style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
@@ -69,6 +77,8 @@ export function TransactionItem({ transaction, onPress, onDelete }: TransactionI
           <View className="flex-1">{content}</View>
           <Pressable
             onPress={onDelete}
+            accessibilityRole="button"
+            accessibilityLabel="Delete transaction"
             className="px-3 py-2 mr-2 rounded-lg"
             style={{ cursor: "pointer" } as never}
           >

@@ -56,6 +56,7 @@ export function CurrencyInput({
       <View className={`flex-row items-center border rounded-xl px-4 bg-white dark:bg-gray-800 ${error ? "border-danger-500" : "border-gray-300 dark:border-gray-500"} ${compact ? "py-2.5" : "py-3"}`}>
         <Text className="text-base text-gray-500 dark:text-gray-400 mr-1">$</Text>
         <TextInput
+          accessibilityLabel={label || "Amount in dollars"}
           className="flex-1 text-base text-gray-900 dark:text-gray-100"
           value={displayText}
           onChangeText={handleChangeText}

@@ -15,6 +15,8 @@ export function EnvelopeCard({ envelope, onPress }: EnvelopeCardProps) {
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${name}, ${formatCents(remaining)} remaining`}
       className="rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700"
       style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
