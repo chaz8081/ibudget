@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/Card";
 import { formatCents } from "@/utils/currency";
 import { getPreviousMonth, getNextMonth } from "@/utils/date";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useNavigation } from "expo-router";
 import { useLayoutEffect } from "react";
 
@@ -61,6 +62,7 @@ export default function HouseholdScreen() {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer className="flex-none">
       <MonthPicker
         month={monthState.month}
         year={monthState.year}
@@ -156,6 +158,7 @@ export default function HouseholdScreen() {
       )}
 
       <View className="h-8" />
+      </PageContainer>
     </ScrollView>
   );
 }

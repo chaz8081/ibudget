@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/forms/FormField";
 import { PROFILES_TABLE } from "@/db/tables";
 import { getErrorMessage } from "@/utils/errors";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 
 const profileSchema = z.object({
@@ -54,7 +55,8 @@ export default function ProfileScreen() {
   });
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer className="px-4 pt-4">
       {user?.email && (
         <View className="mb-4">
           <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</Text>
@@ -70,6 +72,7 @@ export default function ProfileScreen() {
         onSubmitEditing={onSubmit}
       />
       <Button title="Save" onPress={onSubmit} isLoading={isLoading} />
+      </PageContainer>
     </View>
   );
 }

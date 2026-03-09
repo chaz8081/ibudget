@@ -8,6 +8,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { formatCents } from "@/utils/currency";
 import { formatTransactionDate } from "@/utils/date";
 import { SkeletonDetail } from "@/components/ui/Skeleton";
+import { PageContainer } from "@/components/ui/PageContainer";
 
 type TransactionRow = {
   id: string;
@@ -67,6 +68,7 @@ export default function EnvelopeDetailScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer>
       <Card className="mx-4 mt-4 mb-4">
         <View className="flex-row items-center mb-2">
           {category.icon && (
@@ -146,6 +148,7 @@ export default function EnvelopeDetailScreen() {
           )}
         />
       )}
+      </PageContainer>
     </View>
   );
 }

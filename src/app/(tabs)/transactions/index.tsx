@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import * as Storage from "@/utils/storage";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 import { showAlert } from "@/utils/confirm";
 
@@ -149,6 +150,7 @@ export default function TransactionsScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer>
       {/* Search */}
       <View className="px-4 pt-2">
         <Input
@@ -242,6 +244,7 @@ export default function TransactionsScreen() {
         onSave={handleSave}
         onSaveRecurring={handleSaveRecurring}
       />
+      </PageContainer>
     </View>
   );
 }

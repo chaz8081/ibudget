@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { seedDemoData } from "@/utils/seed-demo-data";
 import { getErrorMessage } from "@/utils/errors";
 import { Colors } from "@/constants/colors";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
@@ -63,7 +64,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer className="px-4 pt-4">
       {/* User info */}
       <Card className="mb-6">
         <View className="flex-row items-center">
@@ -146,6 +148,7 @@ export default function SettingsScreen() {
       <Text className="text-xs text-gray-400 dark:text-gray-500 text-center mt-8">
         iBudget v1.0.0{process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local" ? " — Local Mode" : ""}
       </Text>
+      </PageContainer>
     </View>
   );
 }

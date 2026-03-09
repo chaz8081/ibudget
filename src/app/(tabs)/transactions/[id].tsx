@@ -22,6 +22,7 @@ import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CategoryPicker } from "@/components/ui/CategoryPicker";
 import { SkeletonDetail } from "@/components/ui/Skeleton";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 
 const editTransactionSchema = z.object({
@@ -135,7 +136,8 @@ export default function TransactionDetailScreen() {
 
   if (isEditing) {
     return (
-      <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4" keyboardShouldPersistTaps="handled">
+      <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950" keyboardShouldPersistTaps="handled">
+        <PageContainer className="flex-none px-4 pt-4">
         <CurrencyInput label="Amount" value={amount} onChangeValue={setAmount} />
         <FormField
           control={control}
@@ -185,12 +187,14 @@ export default function TransactionDetailScreen() {
           variant="ghost"
           onPress={() => setIsEditing(false)}
         />
+        </PageContainer>
       </ScrollView>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer className="px-4 pt-4">
       <Card className="mb-4">
         <View className="items-center mb-4">
           <Text
@@ -238,6 +242,7 @@ export default function TransactionDetailScreen() {
       <Button title="Edit" variant="secondary" onPress={() => setIsEditing(true)} />
       <View className="h-3" />
       <Button title="Delete" variant="danger" onPress={handleDelete} />
+      </PageContainer>
     </View>
   );
 }

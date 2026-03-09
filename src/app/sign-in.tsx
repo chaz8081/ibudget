@@ -18,6 +18,7 @@ import {
 } from "@/features/auth/schemas/auth.schema";
 import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/Button";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { getErrorMessage } from "@/utils/errors";
 
 const allowSignup = process.env.EXPO_PUBLIC_ALLOW_SIGNUP === "true" ||
@@ -53,6 +54,7 @@ export default function SignInScreen() {
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
+        <PageContainer className="flex-none">
         <View className="mb-10 items-center" accessibilityLabel="iBudget, Your money, your plan">
           <Text className="text-5xl mb-3">💰</Text>
           <Text accessibilityRole="header" className="text-4xl font-bold text-gray-900 dark:text-gray-100">
@@ -113,6 +115,7 @@ export default function SignInScreen() {
             Forgot Password?
           </Link>
         </View>
+        </PageContainer>
       </ScrollView>
     </KeyboardAvoidingView>
   );

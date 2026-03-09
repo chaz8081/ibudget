@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCents } from "@/utils/currency";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 import { showAlert } from "@/utils/confirm";
 
@@ -63,7 +64,8 @@ export default function RecurringTransactionsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer className="px-4 pt-4">
       {recurringTransactions.map((rt) => (
         <Card key={rt.id} className="mb-3">
           <View className="flex-row items-center justify-between mb-2">
@@ -104,6 +106,7 @@ export default function RecurringTransactionsScreen() {
           />
         </Card>
       ))}
+      </PageContainer>
     </View>
   );
 }

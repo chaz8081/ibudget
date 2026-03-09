@@ -6,9 +6,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -18,15 +17,17 @@ import {
 } from "@/features/auth/schemas/auth.schema";
 import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/Button";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { getErrorMessage } from "@/utils/errors";
+import { showAlert } from "@/utils/confirm";
 
 const allowSignup = process.env.EXPO_PUBLIC_ALLOW_SIGNUP === "true" ||
   process.env.EXPO_PUBLIC_AUTH_PROVIDER === "local";
 
 export default function SignUpScreen() {
   const { signUp } = useAuth();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmPasswordRef = useRef<TextInput>(null);
@@ -44,14 +45,40 @@ export default function SignUpScreen() {
   const onSubmit = async (data: SignUpFormData) => {
     setIsLoading(true);
     try {
-      await signUp(data.email, data.password, data.displayName);
-      // LocalAuthProvider auto-signs in; AuthProvider (Supabase) may require email verification
+      const result = await signUp(data.email, data.password, data.displayName);
+      if (result.needsConfirmation) {
+        setNeedsConfirmation(true);
+      }
     } catch (error) {
-      Alert.alert("Sign Up Failed", getErrorMessage(error));
+      showAlert("Sign Up Failed", getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (needsConfirmation) {
+    return (
+      <View className="flex-1 bg-white dark:bg-gray-900 justify-center px-6">
+        <View className="items-center mb-10">
+          <Text className="text-5xl mb-3">💰</Text>
+          <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+            iBudget
+          </Text>
+        </View>
+        <View className="items-center">
+          <Text className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Check Your Email
+          </Text>
+          <Text className="text-base text-gray-500 dark:text-gray-400 text-center mb-8">
+            We sent a confirmation link to your email address. Please check your inbox and click the link to activate your account.
+          </Text>
+          <Link href="/sign-in" asChild>
+            <Button title="Back to Sign In" variant="secondary" />
+          </Link>
+        </View>
+      </View>
+    );
+  }
 
   if (!allowSignup) {
     return (
@@ -86,6 +113,7 @@ export default function SignUpScreen() {
         contentContainerClassName="flex-1 justify-center px-6"
         keyboardShouldPersistTaps="handled"
       >
+        <PageContainer className="flex-none">
         <View className="mb-10 items-center" accessibilityLabel="iBudget, Start your budgeting journey">
           <Text className="text-5xl mb-3">💰</Text>
           <Text accessibilityRole="header" className="text-4xl font-bold text-gray-900 dark:text-gray-100">
@@ -159,6 +187,7 @@ export default function SignUpScreen() {
             Sign In
           </Link>
         </View>
+        </PageContainer>
       </ScrollView>
     </KeyboardAvoidingView>
   );

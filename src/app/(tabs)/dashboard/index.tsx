@@ -19,6 +19,7 @@ import { CurrencyInput } from "@/components/forms/CurrencyInput";
 import { Modal } from "@/components/ui/Modal";
 import { getErrorMessage } from "@/utils/errors";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 
 export default function DashboardScreen() {
@@ -116,6 +117,7 @@ export default function DashboardScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer>
       <MonthPicker
         month={month}
         year={year}
@@ -173,6 +175,7 @@ export default function DashboardScreen() {
         totalIncome={budget?.total_income ?? 0}
         onSave={handleSaveAllocations}
       />
+      </PageContainer>
     </View>
   );
 }

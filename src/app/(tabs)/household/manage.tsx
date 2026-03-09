@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { MemberCard } from "@/components/household/MemberCard";
 import { HOUSEHOLD_MEMBERS_TABLE, PROFILES_TABLE } from "@/db/tables";
 import { getErrorMessage } from "@/utils/errors";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 
 export default function ManageHouseholdScreen() {
@@ -65,7 +66,8 @@ export default function ManageHouseholdScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950 px-4 pt-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer className="px-4 pt-4">
       {/* Household name */}
       <Card className="mb-4">
         <Text className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
@@ -110,6 +112,7 @@ export default function ManageHouseholdScreen() {
           <Button title="Leave Household" variant="danger" onPress={handleLeave} />
         </View>
       )}
+      </PageContainer>
     </View>
   );
 }

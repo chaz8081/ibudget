@@ -4,6 +4,7 @@ import { useHousehold } from "@/features/household/hooks/useHousehold";
 import { useHouseholdMembers } from "@/features/household/hooks/useHouseholdMembers";
 import { MemberCard } from "@/components/household/MemberCard";
 import { SkeletonList } from "@/components/ui/Skeleton";
+import { PageContainer } from "@/components/ui/PageContainer";
 
 export default function MembersScreen() {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ export default function MembersScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer>
       <Text className="px-4 pt-4 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
         {members.length} {members.length === 1 ? "Member" : "Members"}
       </Text>
@@ -33,6 +35,7 @@ export default function MembersScreen() {
           />
         )}
       />
+      </PageContainer>
     </View>
   );
 }

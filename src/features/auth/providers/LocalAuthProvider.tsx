@@ -94,6 +94,7 @@ export function LocalAuthProvider({
       };
       await Storage.setItem(SESSION_KEY, JSON.stringify(localUser));
       setUser(localUser);
+      return { needsConfirmation: false };
     },
     []
   );

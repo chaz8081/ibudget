@@ -15,7 +15,7 @@ export type AuthContextType = {
     email: string,
     password: string,
     displayName: string
-  ) => Promise<void>;
+  ) => Promise<{ needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 };
@@ -25,7 +25,7 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   signIn: async () => {},
-  signUp: async () => {},
+  signUp: async () => ({ needsConfirmation: false }),
   signOut: async () => {},
   resetPassword: async () => {},
 });

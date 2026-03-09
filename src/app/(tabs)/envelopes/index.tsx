@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/Input";
 import { getPreviousMonth, getNextMonth } from "@/utils/date";
 import { CATEGORY_GROUPS } from "@/features/budget/schemas/envelope.schema";
 import { getErrorMessage } from "@/utils/errors";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { useToast } from "@/contexts/ToastContext";
 import type { EnvelopeWithBalance } from "@/features/budget/utils/budget-calculations";
 
@@ -65,6 +66,7 @@ export default function EnvelopesScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <PageContainer>
       <MonthPicker
         month={month}
         year={year}
@@ -126,6 +128,7 @@ export default function EnvelopesScreen() {
           <Button title="Add" onPress={handleAddCategory} />
         </View>
       </Modal>
+      </PageContainer>
     </View>
   );
 }
