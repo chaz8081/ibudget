@@ -121,7 +121,9 @@ export function useProcessRecurring() {
         }
       }
     } catch (error) {
-      console.warn("Error processing recurring transactions:", error);
+      if (__DEV__) {
+        console.warn("Error processing recurring transactions:", error);
+      }
     }
   }, [db, user]);
 

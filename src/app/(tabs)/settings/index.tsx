@@ -46,7 +46,9 @@ export default function SettingsScreen() {
             await seedDemoData(db, user.id);
             showToast("Demo data loaded! Go to Dashboard to see it.");
           } catch (error) {
-            console.error("Seed demo data error:", error);
+            if (__DEV__) {
+              console.error("Seed demo data error:", error);
+            }
             Alert.alert("Error", getErrorMessage(error));
           } finally {
             setSeeding(false);
